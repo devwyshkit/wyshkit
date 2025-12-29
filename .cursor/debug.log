@@ -1,0 +1,491 @@
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824014650,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824014676,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824014676,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824014659,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824014684,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824014716,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824014776,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824015961,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824015966,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824015992,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824015992,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824016060,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824016070,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824016075,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824016075,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824016080,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824016090,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824016093,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824016093,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824016095,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824016102,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824016106,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824016106,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824016109,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824016115,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824016117,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824016117,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824016122,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824016203,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824016207,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824016207,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824016209,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824128736,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824128738,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824128743,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824128756,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824128771,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824128778,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824129904,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824129909,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824129909,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824129909,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824129909,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824129910,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824129982,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824129983,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824129984,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824129984,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824129984,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824130016,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824130017,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824130017,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824130017,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824130017,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824130080,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824130080,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824130080,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824130080,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824130080,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824130132,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824130132,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824130133,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824130133,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824130133,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824130144,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824130144,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824130144,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824130144,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824130144,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824129931,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824129934,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824129963,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824129998,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824129999,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824130006,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824130020,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824130020,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824130024,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824130083,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824130083,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824130126,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824130137,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824130138,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824130140,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824130147,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824130147,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824130154,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824250430,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824250431,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824250447,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824250478,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824250487,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824250491,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824251649,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824251652,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824251652,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824251652,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824251652,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824251652,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824251653,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824251653,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824251709,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824251709,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824251709,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824251709,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824251709,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824251709,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824251710,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824251729,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824251729,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824251729,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824251730,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824251730,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824251730,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824251730,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824251744,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824251744,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824251745,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824251745,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824251745,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824251745,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824251745,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824251777,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824251778,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824251778,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824251778,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824251778,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824251778,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824251778,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824251683,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824251681,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824251698,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824251713,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824251720,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824251713,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824251733,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824251734,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824251736,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824251748,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824251748,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824251752,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824251781,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824251781,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824251826,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824251886,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824251887,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824251887,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824251887,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824251887,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824251887,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824251887,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824251890,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824251891,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824251894,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824273029,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824273058,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824273057,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824273064,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824273111,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824273113,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824274217,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824274220,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824274221,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824274221,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824274221,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824274221,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824274221,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824274221,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824274300,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824274300,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824274300,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824274300,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824274301,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824274302,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824274303,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824274319,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824274320,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824274320,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824274320,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824274320,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824274321,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824274322,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824274340,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824274340,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824274340,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824274340,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824274340,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824274341,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824274341,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824274360,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824274360,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824274361,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824274361,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824274361,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824274361,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824274361,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824274248,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824274250,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824274269,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824274309,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824274310,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824274313,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824274329,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824274329,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824274334,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824274344,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824274344,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824274347,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824274364,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824274364,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824274402,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824274487,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"layout.tsx:62","message":"Before Navbar render","data":{},"timestamp":1766824274488,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:75","message":"After Navbar render","data":{},"timestamp":1766824274488,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:88","message":"Before BottomNav render","data":{},"timestamp":1766824274488,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:101","message":"After BottomNav render","data":{},"timestamp":1766824274488,"sessionId":"debug-session","runId":"run1","hypothesisId":"E"}
+{"location":"layout.tsx:147","message":"Before VisualEditsMessenger render","data":{},"timestamp":1766824274488,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"layout.tsx:160","message":"After VisualEditsMessenger render","data":{},"timestamp":1766824274488,"sessionId":"debug-session","runId":"run1","hypothesisId":"F"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824274491,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824274491,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824274496,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824482028,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824482031,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824482034,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824482040,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824482042,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824482045,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824482046,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824482914,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824482916,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824482933,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824482934,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824482954,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824482956,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824482956,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824482963,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824482965,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824482965,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824482970,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824482974,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824482974,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824482983,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824482985,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824482985,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824482946,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824482958,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824482967,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824482979,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824483030,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824483064,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824483067,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824483067,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824483069,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824502156,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824502165,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824502187,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824502191,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824502219,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824502228,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824502988,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824502993,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824503011,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824503012,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824503030,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824503032,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824503032,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824503042,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824503046,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824503046,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824503102,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824503104,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824503104,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824503114,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824503116,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824503116,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824503021,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824503036,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824503084,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824503106,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824503119,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824503152,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824503154,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824503154,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824503156,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824516946,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824516960,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824516978,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824516979,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824517003,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824517006,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824517868,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824517870,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824517890,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824517890,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824517913,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824517915,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824517915,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824517921,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824517923,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824517923,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824517932,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824517935,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824517935,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824517940,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824517941,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824517941,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824517903,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824517918,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824517927,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824517936,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824517943,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824517987,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824517990,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824517990,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824518008,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824539610,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824539627,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824539629,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824539675,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824539685,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824540546,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824540548,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824540567,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824540568,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824540604,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824540608,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824540608,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824540620,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824540624,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824540624,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824540661,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824540664,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824540664,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824540682,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824540684,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824540685,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824540592,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824540610,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824540649,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824540667,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824540687,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824540739,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824540743,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824540743,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824540749,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824567653,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824567675,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824567687,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824567694,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824567698,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824567721,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824567737,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:10","message":"Metadata generation","data":{"hasIcons":true,"iconPath":"/favicon.ico"},"timestamp":1766824568614,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824568616,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824568630,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824568631,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824568655,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824568663,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824568663,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824568689,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824568692,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824568692,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824568703,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824568706,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824568706,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824568717,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824568720,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824568720,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824568647,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824568683,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824568696,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"layout.tsx:28","message":"RootLayout SSR entry","data":{"hasChildren":true},"timestamp":1766824568760,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824568710,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824568762,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824568762,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824568721,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824568766,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824738805,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824738806,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824738834,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824738834,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824738862,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824738863,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824738921,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824738922,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824738934,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824738934,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824738821,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824738838,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824738913,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824738926,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824738937,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824738974,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824738974,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824738976,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824755717,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824755717,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824755747,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824755748,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824755759,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824755759,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824755788,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824755788,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824755795,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824755796,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824755733,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824755752,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824755764,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824755790,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824755831,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824755876,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824755876,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824755878,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824827444,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824827444,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824827479,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824827479,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824827490,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824827490,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824827515,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824827515,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824827536,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824827536,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824827464,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824827481,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824827492,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824827531,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824827539,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824827573,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824827573,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824827574,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824857277,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824857277,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824857308,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824857309,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824857318,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824857318,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824857325,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824857325,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824857336,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824857336,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824857293,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824857312,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824857320,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824857331,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824857339,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824857379,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824857379,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824857397,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824876705,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824876706,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824876736,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824876736,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824876747,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824876747,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824876777,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824876777,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824876790,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824876790,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824876722,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824876738,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824876768,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824876779,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824876793,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824876881,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824876881,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824876883,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824906428,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824906428,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824906458,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824906459,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824906468,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824906468,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824906480,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824906480,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824906489,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824906489,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824906444,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824906462,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824906472,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824906483,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824906492,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"ErrorReporter.tsx:11","message":"ErrorReporter render SSR","data":{"hasError":false},"timestamp":1766824906537,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"Providers.tsx:5","message":"Providers render SSR","data":{"hasChildren":true},"timestamp":1766824906537,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824906555,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824921956,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824921970,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824921981,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824921990,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824922003,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"VisualEditsMessenger.tsx:401","message":"VisualEditsMessenger render SSR","data":{},"timestamp":1766824922039,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
