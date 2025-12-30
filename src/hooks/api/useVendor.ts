@@ -38,13 +38,16 @@ export function useVendor(id: string | null): UseVendorResult {
       return;
     }
 
-    // Swiggy Dec 2025 pattern: Deduplicate concurrent requests
-    await deduplicateRequest(`vendor:${id}`, async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    // CRITICAL FIX: Set loading state BEFORE deduplication
+    // This ensures loading state is always set, even if request is deduplicated
+    setLoading(true);
+    setError(null);
 
-        const supabase = getSupabaseClient();
+    // Swiggy Dec 2025 pattern: Deduplicate concurrent requests
+    try {
+      await deduplicateRequest(`vendor:${id}`, async () => {
+        try {
+          const supabase = getSupabaseClient();
         if (!supabase) {
           setError("Service temporarily unavailable");
           setVendor(null);
@@ -258,10 +261,17 @@ export function useVendor(id: string | null): UseVendorResult {
         setError(classifiedError.message);
         setVendor(null);
         setProducts([]);
-      } finally {
-        setLoading(false);
-      }
-    });
+        } finally {
+          setLoading(false);
+        }
+      });
+    } catch (err) {
+      // Handle deduplicated request failure
+      setLoading(false);
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch vendor";
+      setError(errorMessage);
+      logger.error("[useVendor] Deduplicated request failed", err);
+    }
   }, [id]);
 
   useEffect(() => {

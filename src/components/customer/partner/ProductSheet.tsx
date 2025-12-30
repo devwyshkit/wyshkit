@@ -219,8 +219,8 @@ export const ProductSheet = React.memo(function ProductSheet({ product, vendor, 
       </AlertDialog>
       <Drawer.Root open={open} onOpenChange={onOpenChange}>
         <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/50 z-50" />
-        <Drawer.Content className="bg-background flex flex-col rounded-t-2xl h-[80vh] fixed bottom-0 left-0 right-0 z-50 focus:outline-none max-w-2xl mx-auto overflow-hidden">
+          <Drawer.Overlay className="fixed inset-0 bg-black/50 z-[100]" />
+        <Drawer.Content className="bg-background flex flex-col rounded-t-2xl h-[80vh] fixed bottom-0 left-0 right-0 z-[100] focus:outline-none max-w-2xl mx-auto overflow-hidden">
           <DialogTitle className="sr-only">{product.name}</DialogTitle>
           <DialogDescription className="sr-only">Product details and options</DialogDescription>
           <div className="mx-auto w-10 h-1 flex-shrink-0 rounded-full bg-muted mt-3" />
