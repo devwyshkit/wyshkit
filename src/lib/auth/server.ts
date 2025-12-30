@@ -55,41 +55,16 @@ function mapSupabaseUser(supabaseUser: User | null): AuthUser | null {
  */
 export async function getCurrentUser(request: Request): Promise<AuthUser | null> {
   try {
-    // DEV BYPASS: Check for dev auth cookies first (development only)
-      if (process.env.NODE_ENV === "development") {
-        const cookieHeader = request.headers.get("cookie") || "";
-        const devUserId = cookieHeader.match(/dev_auth_user_id=([^;]+)/)?.[1];
-        const devRole = cookieHeader.match(/dev_auth_role=([^;]+)/)?.[1];
-        
-          if (devUserId && devRole) {
-            // Map dev roles to consistent UUIDs from the seed data
-            let finalId = devUserId;
-            if (devUserId.length < 36) {
-              if (devRole === "admin") finalId = "00000000-0000-0000-0000-000000000005";
-              else if (devRole === "vendor") finalId = "00000000-0000-0000-0000-000000000002";
-              else finalId = "00000000-0000-0000-0000-000000000001";
-            }
-            
-            logger.debug("[Auth] Using dev bypass", { userId: finalId, role: devRole });
-          return {
-            id: finalId,
-            email: `${devRole}@example.com`,
-            name: `Test ${devRole}`,
-            phone: "+919876543210",
-            role: devRole,
-          };
-        }
-      }
-
     // Create Supabase client with request headers to read session from cookies
-    const supabase = createSupabaseServerClientWithRequest(request);
+    // With @supabase/ssr, cookies are automatically read from the cookie store
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       logger.warn("[Auth] Supabase client not available");
       return null;
     }
 
     // Get user from Supabase session
-    // Supabase automatically reads session from cookies passed in headers
+    // With @supabase/ssr, session is automatically read from cookies
     const { data: { user }, error } = await supabase.auth.getUser();
 
     if (error) {

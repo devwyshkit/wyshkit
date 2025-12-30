@@ -14,54 +14,8 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
   const lastOverlayMsg = useRef("");
   const pollRef = useRef<NodeJS.Timeout>();
 
-  // Swiggy Dec 2025 pattern: Suppress Chrome extension runtime errors globally
-  useEffect(() => {
-    // SSR safety check - window is only available in browser
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    // Suppress Chrome extension runtime errors
-    if (typeof chrome !== "undefined" && chrome.runtime) {
-      // Override chrome.runtime.lastError to prevent console warnings
-      try {
-        const originalDescriptor = Object.getOwnPropertyDescriptor(chrome.runtime, 'lastError');
-        if (originalDescriptor) {
-          Object.defineProperty(chrome.runtime, 'lastError', {
-            get: function() {
-              // Silently return the error without logging
-              return originalDescriptor.get?.call(chrome.runtime);
-            },
-            configurable: true,
-            enumerable: originalDescriptor.enumerable,
-          });
-        }
-      } catch (e) {
-        // Ignore if we can't override (some Chrome versions may not allow this)
-      }
-
-      // Suppress console errors for chrome extension messages
-      const originalConsoleError = console.error;
-      console.error = function(...args: unknown[]) {
-        const message = args[0]?.toString() || '';
-        // Filter out chrome extension errors - Swiggy Dec 2025 pattern: Clean console
-        if (
-          message.includes('runtime.lastError') ||
-          message.includes('message port closed') ||
-          message.includes('Unchecked runtime.lastError') ||
-          message.includes('The message port closed before a response was received')
-        ) {
-          return; // Suppress - these are harmless Chrome extension warnings
-        }
-        originalConsoleError.apply(console, args);
-      };
-
-      // Cleanup: restore original console.error on unmount
-      return () => {
-        console.error = originalConsoleError;
-      };
-    }
-  }, []);
+  // Swiggy Dec 2025 pattern: Don't suppress Chrome extension errors - they're harmless
+  // Let the browser handle them naturally. Suppression is an anti-pattern that hides real issues.
 
   useEffect(() => {
     // SSR safety check - window is only available in browser
@@ -75,22 +29,9 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
     const send = (payload: unknown) => {
       try {
         window.parent.postMessage(payload, "*");
-        // Suppress Chrome extension errors - Swiggy Dec 2025 pattern: Silent suppression
-        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError) {
-          // Silently ignore - this is a Chrome extension issue
-          // Access lastError to clear it, but don't log
-          void chrome.runtime.lastError;
-        }
       } catch (error) {
-        // Silently handle message port errors (parent window closed, extension errors, etc.)
-        // This prevents "runtime.lastError: The message port closed before a response was received"
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        // Only log if it's not a chrome extension error
-        if (
-          !errorMessage.includes('runtime.lastError') &&
-          !errorMessage.includes('message port closed') &&
-          process.env.NODE_ENV === "development"
-        ) {
+        // Swiggy Dec 2025 pattern: Log errors properly, don't suppress
+        if (process.env.NODE_ENV === "development") {
           logger.debug("[ErrorReporter] postMessage failed", error);
         }
       }
@@ -173,22 +114,9 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
         },
         "*"
       );
-      // Suppress Chrome extension errors - Swiggy Dec 2025 pattern: Silent suppression
-      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError) {
-        // Silently ignore - this is a Chrome extension issue
-        // Access lastError to clear it, but don't log
-        void chrome.runtime.lastError;
-      }
     } catch (error) {
-      // Silently handle message port errors (parent window closed, extension errors, etc.)
-      // This prevents "runtime.lastError: The message port closed before a response was received"
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      // Only log if it's not a chrome extension error
-      if (
-        !errorMessage.includes('runtime.lastError') &&
-        !errorMessage.includes('message port closed') &&
-        process.env.NODE_ENV === "development"
-      ) {
+      // Swiggy Dec 2025 pattern: Log errors properly, don't suppress
+      if (process.env.NODE_ENV === "development") {
         logger.debug("[ErrorReporter] postMessage failed", error);
       }
     }

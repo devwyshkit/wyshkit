@@ -1,13 +1,9 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { wallet, walletTransactions, orders } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { getSupabaseServiceClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/utils/logger";
-import { requireAuth, AuthError } from "@/lib/auth/server";
+import { requireAuth } from "@/lib/auth/server";
 import { isAuthError, isErrorWithStatus, formatApiError } from "@/lib/types/api-errors";
 import { calculateCashback } from "@/lib/utils/cashback";
-import { appConfig } from "@/lib/config/app";
-import { isDevelopment } from "@/lib/config/env";
 
 /**
  * POST /api/cashback/credit
@@ -39,37 +35,31 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!db) {
-      if (isDevelopment) {
-        logger.warn("[API /cashback/credit] Development mode: Using mock cashback credit (database not available)");
-        // Mock cashback calculation
-        const mockOrderTotal = 1000;
-        const mockCashbackAmount = calculateCashback(mockOrderTotal);
-        return NextResponse.json({
-          success: true,
-          cashbackAmount: mockCashbackAmount,
-          newBalance: mockCashbackAmount,
-          _devMode: true,
-        });
-      }
+    // Use service role client for system operations (crediting cashback to customer wallet)
+    const supabase = getSupabaseServiceClient();
+    if (!supabase) {
       return NextResponse.json(
-        { error: "Database not available" },
+        { error: "Service temporarily unavailable" },
         { status: 503 }
       );
     }
 
-    // Fetch order
-    const [order] = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.id, orderId))
-      .limit(1);
+    // Fetch order using Supabase client
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .select('id, status, total, customer_id, order_number')
+      .eq('id', orderId)
+      .single();
 
-    if (!order) {
-      return NextResponse.json(
-        { error: "Order not found" },
-        { status: 404 }
-      );
+    if (orderError || !order) {
+      if (orderError?.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: "Order not found" },
+          { status: 404 }
+        );
+      }
+      logger.error("[API /cashback/credit] Failed to fetch order", orderError);
+      return NextResponse.json({ error: "Failed to fetch order" }, { status: 500 });
     }
 
     // Check if order is delivered
@@ -81,18 +71,19 @@ export async function POST(request: Request) {
     }
 
     // Check if cashback already credited
-    const existingCredit = await db
-      .select()
-      .from(walletTransactions)
-      .where(
-        and(
-          eq(walletTransactions.orderId, orderId),
-          eq(walletTransactions.type, "credit")
-        )
-      )
-      .limit(1);
+    const { data: existingCredit, error: creditCheckError } = await supabase
+      .from('wallet_transactions')
+      .select('id')
+      .eq('order_id', orderId)
+      .eq('type', 'credit')
+      .maybeSingle();
 
-    if (existingCredit.length > 0) {
+    if (creditCheckError && creditCheckError.code !== 'PGRST116') {
+      logger.error("[API /cashback/credit] Failed to check existing credit", creditCheckError);
+      return NextResponse.json({ error: "Failed to check cashback status" }, { status: 500 });
+    }
+
+    if (existingCredit) {
       return NextResponse.json(
         { error: "Cashback already credited for this order" },
         { status: 400 }
@@ -100,46 +91,70 @@ export async function POST(request: Request) {
     }
 
     // Calculate cashback (10% of order total)
-    const orderTotal = parseFloat(order.total);
+    const orderTotal = parseFloat(order.total || "0");
     const cashbackAmount = calculateCashback(orderTotal);
 
-    // Get or create wallet
-    let [userWallet] = await db
-      .select()
-      .from(wallet)
-      .where(eq(wallet.userId, order.customerId))
-      .limit(1);
+    // Get or create wallet using Supabase client
+    let { data: userWallet, error: walletError } = await supabase
+      .from('wallet')
+      .select('id, balance')
+      .eq('user_id', order.customer_id)
+      .maybeSingle();
+
+    if (walletError && walletError.code !== 'PGRST116') {
+      logger.error("[API /cashback/credit] Failed to fetch wallet", walletError);
+      return NextResponse.json({ error: "Failed to fetch wallet" }, { status: 500 });
+    }
 
     if (!userWallet) {
       // Auto-create wallet if it doesn't exist
-      [userWallet] = await db
-        .insert(wallet)
-        .values({
-          userId: order.customerId,
+      const { data: newWallet, error: insertError } = await supabase
+        .from('wallet')
+        .insert({
+          user_id: order.customer_id,
           balance: "0",
         })
-        .returning();
+        .select()
+        .single();
+
+      if (insertError) {
+        logger.error("[API /cashback/credit] Failed to create wallet", insertError);
+        return NextResponse.json({ error: "Failed to create wallet" }, { status: 500 });
+      }
+      userWallet = newWallet;
     }
 
     // Update wallet balance
-    const newBalance = parseFloat(userWallet.balance) + cashbackAmount;
-    await db
-      .update(wallet)
-      .set({ balance: newBalance.toString() })
-      .where(eq(wallet.id, userWallet.id));
+    const newBalance = parseFloat(userWallet.balance || "0") + cashbackAmount;
+    const { error: updateError } = await supabase
+      .from('wallet')
+      .update({ balance: newBalance.toString() })
+      .eq('id', userWallet.id);
+
+    if (updateError) {
+      logger.error("[API /cashback/credit] Failed to update wallet", updateError);
+      return NextResponse.json({ error: "Failed to update wallet" }, { status: 500 });
+    }
 
     // Create transaction record
-    await db.insert(walletTransactions).values({
-      walletId: userWallet.id,
-      type: "credit",
-      amount: cashbackAmount.toString(),
-      description: `Cashback for order ${order.orderNumber}`,
-      orderId: order.id,
-    });
+    const { error: transactionError } = await supabase
+      .from('wallet_transactions')
+      .insert({
+        wallet_id: userWallet.id,
+        type: 'credit',
+        amount: cashbackAmount.toString(),
+        description: `Cashback for order ${order.order_number}`,
+        order_id: order.id,
+      });
+
+    if (transactionError) {
+      logger.error("[API /cashback/credit] Failed to create transaction", transactionError);
+      // Don't fail the request - wallet is already updated
+    }
 
     logger.info("[API /cashback/credit] Credited cashback", {
       orderId,
-      customerId: order.customerId,
+      customerId: order.customer_id,
       amount: cashbackAmount,
       newBalance,
     });

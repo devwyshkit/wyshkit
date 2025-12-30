@@ -42,6 +42,7 @@ export const addresses = pgTable('addresses', {
   pincode: text('pincode').notNull(),
   lat: decimal('lat', { precision: 10, scale: 7 }), // Latitude for distance calculation
   lng: decimal('lng', { precision: 10, scale: 7 }), // Longitude for distance calculation
+  label: text('label').default('Home'), // Address type: Home, Work, Other
   isDefault: boolean('is_default').default(false),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
@@ -289,18 +290,8 @@ export const disputes = pgTable('disputes', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
-// OTP Codes (for phone authentication)
-export const otpCodes = pgTable('otp_codes', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  phone: text('phone').notNull(),
-  code: text('code').notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
-  attempts: integer('attempts').default(0).notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-}, (table) => ({
-  phoneIdx: index('otp_codes_phone_idx').on(table.phone),
-  expiresAtIdx: index('otp_codes_expires_at_idx').on(table.expiresAt),
-}));
+// NOTE: OTP Codes table removed - we use Supabase Auth for OTP authentication
+// This eliminates legacy code and maximizes Supabase usage (Swiggy Dec 2025 pattern)
 
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({

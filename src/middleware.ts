@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { checkRateLimit, rateLimitConfigs } from '@/lib/middleware/rate-limit';
 import { applySecurityHeaders } from '@/lib/middleware/security-headers';
+import { createSupabaseMiddlewareClient } from '@/lib/supabase/client';
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -18,6 +19,44 @@ export async function middleware(request: NextRequest) {
   }
   
   let response = NextResponse.next();
+  
+  // Refresh Supabase session in middleware to keep it in sync
+  // Swiggy Dec 2025 pattern: Session refresh for consistent auth state
+  // Wrapped in try-catch to ensure middleware never throws unhandled errors
+  try {
+    // Only attempt Supabase refresh if we have the required config
+    const hasSupabaseConfig = 
+      process.env.NEXT_PUBLIC_SUPABASE_URL && 
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (hasSupabaseConfig) {
+      try {
+        const supabase = createSupabaseMiddlewareClient(request, response);
+        if (supabase) {
+          // Refresh session if it exists - this updates cookies if needed
+          // Use Promise.race with timeout to prevent hanging
+          const getUserPromise = supabase.auth.getUser();
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('getUser timeout')), 2000)
+          );
+          
+          await Promise.race([getUserPromise, timeoutPromise]);
+          // getUser() automatically refreshes the session and updates cookies via setAll
+        }
+      } catch (supabaseError) {
+        // Silently fail - auth might not be configured or session might not exist
+        // Don't block requests if Supabase refresh fails
+        // Swiggy Dec 2025 pattern: Use logger, not console
+        // Silently fail - auth might not be configured or session might not exist
+        // Don't block requests if Supabase refresh fails
+      }
+    }
+  } catch (error) {
+    // Catch any unexpected errors to prevent middleware from crashing
+    // This ensures requests are never blocked by middleware errors
+    // Never throw - always continue with the request
+    // Swiggy Dec 2025 pattern: Silent failure in middleware to prevent blocking requests
+  }
   
   // Handle deep links - preserve query parameters
   // Swiggy Dec 2025 pattern: Smart URL parameter handling

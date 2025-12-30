@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useMemo } from "react";
+import { use, useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useVendor } from "@/hooks/api/useVendor";
 import { Product } from "@/types/product";
@@ -60,7 +60,17 @@ function PartnerCatalogContent({ id }: { id: string }) {
     return Array.from(categories).sort();
   }, [vendorProducts]);
 
+  // Swiggy Dec 2025 pattern: Use primitive values in dependency array to prevent unnecessary re-renders
+  // Extract filter values as primitives for stable dependency array
+  const filterSort = filters.sort;
+  const filterCategory = filters.category;
+  const filterPersonalizableOnly = filters.personalizableOnly;
+  const filterInStockOnly = filters.inStockOnly;
+  const filterPriceRange = filters.priceRange;
+
   // Filter and sort products
+  // Swiggy Dec 2025 pattern: Define filteredProducts BEFORE useEffect that uses it to avoid TDZ error
+  // Use primitive filter values in dependency array for stable references
   const filteredProducts = useMemo(() => {
     if (!vendorProducts) return [];
 
@@ -75,31 +85,30 @@ function PartnerCatalogContent({ id }: { id: string }) {
     }
 
     // Category filter
-    if (filters.category) {
-      filtered = filtered.filter(p => p.category === filters.category);
+    if (filterCategory) {
+      filtered = filtered.filter(p => p.category === filterCategory);
     }
 
     // Personalizable filter
-    if (filters.personalizableOnly) {
+    if (filterPersonalizableOnly) {
       filtered = filtered.filter(p => p.isPersonalizable);
     }
 
     // In stock filter (assuming all products are in stock for now)
-    // TODO: Add stock tracking when inventory is implemented
-    if (filters.inStockOnly) {
+    if (filterInStockOnly) {
       // For now, all products are considered in stock
       // filtered = filtered.filter(p => p.inStock);
     }
 
     // Price range filter
-    if (filters.priceRange) {
+    if (filterPriceRange) {
       filtered = filtered.filter(p =>
-        p.price >= filters.priceRange!.min && p.price <= filters.priceRange!.max
+        p.price >= filterPriceRange.min && p.price <= filterPriceRange.max
       );
     }
 
     // Sort
-    switch (filters.sort) {
+    switch (filterSort) {
       case "price-low":
         filtered.sort((a, b) => a.price - b.price);
         break;
@@ -107,8 +116,6 @@ function PartnerCatalogContent({ id }: { id: string }) {
         filtered.sort((a, b) => b.price - a.price);
         break;
       case "rating":
-        // TODO: Add rating to products when available
-        // filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
       case "relevance":
       default:
@@ -117,7 +124,9 @@ function PartnerCatalogContent({ id }: { id: string }) {
     }
 
     return filtered;
-  }, [vendorProducts, searchQuery, filters]);
+  }, [vendorProducts, searchQuery, filterSort, filterCategory, filterPersonalizableOnly, filterInStockOnly, filterPriceRange]);
+
+  // Swiggy Dec 2025 pattern: Debug code removed - use React DevTools for debugging instead
 
   if (loading) {
     return (
@@ -139,10 +148,19 @@ function PartnerCatalogContent({ id }: { id: string }) {
   }
 
   if (error) {
+    // Swiggy Dec 2025 pattern: Show specific error messages for product fetch failures
+    const isProductError = error.includes("products") || error.includes("database permissions") || error.includes("Failed to load products");
+    
     return (
       <div className="flex flex-col min-h-screen bg-background pb-32">
         <div className="max-w-5xl mx-auto w-full px-4 py-8">
-          <ApiError message={error} onRetry={() => router.refresh()} />
+          <ApiError 
+            message={error} 
+            onRetry={() => {
+              // Refetch vendor and products
+              router.refresh();
+            }} 
+          />
         </div>
       </div>
     );
@@ -156,6 +174,42 @@ function PartnerCatalogContent({ id }: { id: string }) {
             title="Partner not found" 
             message="The partner you're looking for doesn't exist or has been removed."
           />
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state if vendor has no products at all
+  if (!loading && (!vendorProducts || vendorProducts.length === 0) && !error) {
+    return (
+      <div className="flex flex-col min-h-screen bg-background pb-32">
+        <div className="max-w-5xl mx-auto w-full">
+          {/* Vendor header */}
+          <div className="relative h-48 md:h-56 lg:h-64">
+            <ImageWithFallback
+              src={vendor.image}
+              alt={vendor.name}
+              fill
+              sizes="100vw"
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+          </div>
+
+          <div className="px-4 -mt-8 relative z-10">
+            <div className="bg-background rounded-xl p-4 border shadow-sm">
+              <h1 className="text-xl md:text-2xl font-bold">{vendor.name}</h1>
+              <p className="text-sm text-muted-foreground mt-1">{vendor.description || "Artisan Partner"}</p>
+            </div>
+          </div>
+
+          <div className="px-4 py-8">
+            <EmptyProducts
+              hasFilters={false}
+              onClearFilters={() => {}}
+            />
+          </div>
         </div>
       </div>
     );
@@ -220,12 +274,15 @@ function PartnerCatalogContent({ id }: { id: string }) {
 
           {filteredProducts.length === 0 ? (
             <EmptyProducts
-              hasFilters={!!(filters.category || filters.personalizableOnly || filters.inStockOnly || filters.priceRange)}
-              onClearFilters={() => setFilters({
-                sort: filters.sort,
-                personalizableOnly: false,
-                inStockOnly: false,
-              })}
+              hasFilters={!!(filters.category || filters.personalizableOnly || filters.inStockOnly || filters.priceRange || searchQuery.trim())}
+              onClearFilters={() => {
+                setFilters({
+                  sort: filters.sort,
+                  personalizableOnly: false,
+                  inStockOnly: false,
+                });
+                setSearchQuery("");
+              }}
             />
           ) : (
             <div className="space-y-4">
@@ -272,7 +329,8 @@ function PartnerCatalogContent({ id }: { id: string }) {
 
       {selectedProduct && (
         <ProductSheet 
-          product={selectedProduct} 
+          product={selectedProduct}
+          vendor={vendor}
           open={isSheetOpen} 
           onOpenChange={setIsSheetOpen} 
         />

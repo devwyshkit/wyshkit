@@ -1,0 +1,29 @@
+-- Document unused indexes for future review
+-- Swiggy Dec 2025 pattern: Monitor index usage before removal
+-- 
+-- The following indexes have been identified as unused by Supabase advisors:
+-- - addresses_user_id_idx
+-- - notifications_user_id_idx
+-- - notifications_created_at_idx
+-- - orders_customer_id_idx
+-- - orders_vendor_id_idx
+-- - orders_status_idx
+-- - products_is_active_idx
+-- - vendors_city_idx
+-- - vendors_city_status_idx
+-- - disputes_order_id_idx
+-- - product_reviews_order_id_idx
+-- - product_reviews_product_id_idx
+-- - vendors_user_id_idx
+-- - wallet_transactions_order_id_idx
+-- - user_search_history_user_id_idx
+--
+-- NOTE: These indexes may support RLS policies or future queries.
+-- Do NOT remove until after 30+ days of monitoring in production.
+-- Review query patterns and RLS policy usage before removal.
+--
+-- To check index usage:
+-- SELECT schemaname, tablename, indexname, idx_scan 
+-- FROM pg_stat_user_indexes 
+-- WHERE schemaname = 'public' AND idx_scan = 0;
+

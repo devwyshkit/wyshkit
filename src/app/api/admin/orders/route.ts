@@ -38,24 +38,49 @@ export async function GET(request: Request) {
       conditions.push(like(orders.orderNumber, `%${search}%`));
     }
 
-    const totalResult = await db
-      .select({ count: count() })
-      .from(orders)
-      .where(conditions.length > 0 ? and(...conditions) : undefined);
-    const total = totalResult[0]?.count || 0;
+    let total = 0;
+    let dbOrders = [];
 
-    const dbOrders = await db
-      .select({
-        order: orders,
-        vendorName: vendors.name,
-        disputeCount: sql<number>`(SELECT count(*) FROM ${disputes} WHERE ${disputes.orderId} = ${orders.id})::int`
-      })
-      .from(orders)
-      .leftJoin(vendors, eq(orders.vendorId, vendors.id))
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .orderBy(desc(orders.createdAt))
-      .limit(limit)
-      .offset(offset);
+    try {
+      const totalResult = await db
+        .select({ count: count() })
+        .from(orders)
+        .where(conditions.length > 0 ? and(...conditions) : undefined);
+      total = totalResult[0]?.count || 0;
+
+      dbOrders = await db
+        .select({
+          order: orders,
+          vendorName: vendors.name,
+          disputeCount: sql<number>`(SELECT count(*) FROM ${disputes} WHERE ${disputes.orderId} = ${orders.id})::int`
+        })
+        .from(orders)
+        .leftJoin(vendors, eq(orders.vendorId, vendors.id))
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(orders.createdAt))
+        .limit(limit)
+        .offset(offset);
+    } catch (dbError) {
+      logger.error("[API /admin/orders] Database operation failed", {
+        error: dbError instanceof Error ? dbError.message : String(dbError),
+        stack: dbError instanceof Error ? dbError.stack : undefined,
+        operation: "select",
+        table: "orders",
+        status,
+        search,
+      });
+      
+      return NextResponse.json(
+        { 
+          error: "Failed to fetch orders. Please try again.", 
+          code: "DATABASE_ERROR",
+          ...(process.env.NODE_ENV === "development" && { 
+            details: dbError instanceof Error ? dbError.message : String(dbError) 
+          }),
+        },
+        { status: 500 }
+      );
+    }
 
     const now = new Date();
 
@@ -89,7 +114,25 @@ export async function GET(request: Request) {
       offset,
     });
   } catch (error) {
-    logger.error("[API /admin/orders] Error fetching orders", error);
-    return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
+    // Check if it's an auth error
+    if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
+      return NextResponse.json({ error: "Authentication required", code: "AUTH_REQUIRED" }, { status: 401 });
+    }
+    
+    logger.error("[API /admin/orders] Unexpected error", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    
+    return NextResponse.json(
+      { 
+        error: "Failed to fetch orders. Please try again.", 
+        code: "INTERNAL_ERROR",
+        ...(process.env.NODE_ENV === "development" && { 
+          details: error instanceof Error ? error.message : String(error) 
+        }),
+      },
+      { status: 500 }
+    );
   }
 }

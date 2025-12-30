@@ -38,24 +38,51 @@ export async function GET(
     }
 
     // Fetch reviews with user info
-    const reviewsData = await db
-      .select({
-        id: productReviews.id,
-        productId: productReviews.productId,
-        userId: productReviews.userId,
-        orderId: productReviews.orderId,
-        rating: productReviews.rating,
-        comment: productReviews.comment,
-        createdAt: productReviews.createdAt,
-        userName: users.name,
-      })
-      .from(productReviews)
-      .leftJoin(users, eq(productReviews.userId, users.id))
-      .where(eq(productReviews.productId, id))
-      .orderBy(desc(productReviews.createdAt))
-      .limit(50);
+    // Swiggy Dec 2025 pattern: Use leftJoin to handle missing users gracefully
+    let reviewsData;
+    try {
+      reviewsData = await db
+        .select({
+          id: productReviews.id,
+          productId: productReviews.productId,
+          userId: productReviews.userId,
+          orderId: productReviews.orderId,
+          rating: productReviews.rating,
+          comment: productReviews.comment,
+          createdAt: productReviews.createdAt,
+          userName: users.name,
+        })
+        .from(productReviews)
+        .leftJoin(users, eq(productReviews.userId, users.id))
+        .where(eq(productReviews.productId, id))
+        .orderBy(desc(productReviews.createdAt))
+        .limit(50);
+    } catch (dbError: any) {
+      logger.error("[GET /api/products/[id]/reviews] Database query failed", {
+        error: dbError instanceof Error ? dbError.message : String(dbError),
+        code: dbError?.code,
+        productId: id,
+      });
+      
+      // Return empty reviews on database error (better than 500)
+      if (isDevelopment) {
+        return NextResponse.json({
+          reviews: [],
+          averageRating: 0,
+          reviewCount: 0,
+          _devMode: true,
+          _error: dbError instanceof Error ? dbError.message : String(dbError),
+        });
+      }
+      
+      return NextResponse.json(
+        { error: "Failed to fetch reviews" },
+        { status: 500 }
+      );
+    }
 
     // Transform reviews to include user names
+    // Handle missing users gracefully (leftJoin returns null for userName if user doesn't exist)
     const reviews = reviewsData.map(r => ({
       id: r.id,
       productId: r.productId,
@@ -64,7 +91,7 @@ export async function GET(
       rating: Number(r.rating),
       comment: r.comment || undefined,
       createdAt: r.createdAt?.toISOString() || new Date().toISOString(),
-      userName: r.userName || undefined,
+      userName: r.userName || undefined, // Will be undefined if user doesn't exist (leftJoin)
     }));
 
     // Calculate average rating

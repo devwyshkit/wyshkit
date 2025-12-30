@@ -1,5 +1,22 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Expected Console Errors
+
+### Chrome Extension Errors
+The following error is **expected and harmless**:
+- `Unchecked runtime.lastError: The message port closed before a response was received`
+
+This occurs when browser extensions (like ad blockers, password managers, etc.) try to communicate with the page but the message port closes. This is not a bug in our code and can be safely ignored.
+
+### Accessibility Warnings
+The following warning is **expected and harmless**:
+- `Blocked aria-hidden on an element because its descendant retained focus.`
+
+This is a known issue with drawer/modal libraries (vaul) when drawers open. The warning is harmless - drawers properly manage focus and accessibility. The main content gets `aria-hidden` when a drawer opens, which is correct behavior for accessibility.
+
+### Development Mode Logging
+In development mode, we log all errors (including non-critical ones) to help with debugging. These logs are filtered out in production.
+
 ## Getting Started
 
 First, run the development server:

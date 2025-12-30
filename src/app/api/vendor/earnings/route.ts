@@ -5,9 +5,7 @@
 
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/server";
-import { db } from "@/lib/db";
-import { orders, vendors } from "@/lib/db/schema";
-import { eq, and, sum, gte, sql } from "drizzle-orm";
+import { createSupabaseServerClientWithRequest } from "@/lib/supabase/client";
 import { logger } from "@/lib/utils/logger";
 
 export async function GET(request: Request) {
@@ -21,64 +19,95 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const period = searchParams.get("period") || "30"; // days
 
-    if (!db) {
-      logger.error("[Vendor Earnings] Database connection not available");
+    // Use authenticated Supabase client (has auth context for RLS)
+    const supabase = await createSupabaseServerClientWithRequest(request);
+    if (!supabase) {
+      logger.error("[Vendor Earnings] Supabase client not available");
       return NextResponse.json({ error: "Service temporarily unavailable" }, { status: 503 });
     }
 
-    // Get vendor ID from user ID
-    const [vendor] = await db.select().from(vendors).where(eq(vendors.userId, user.id));
+    // Get vendor ID from user ID using Supabase client
+    const { data: vendorData, error: vendorError } = await supabase
+      .from('vendors')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
 
-    if (!vendor) {
-      return NextResponse.json({ error: "Vendor profile not found" }, { status: 404 });
+    if (vendorError || !vendorData) {
+      if (vendorError?.code === 'PGRST116') {
+        return NextResponse.json({ error: "Vendor profile not found" }, { status: 404 });
+      }
+      logger.error("[Vendor Earnings] Failed to fetch vendor", vendorError);
+      return NextResponse.json({ error: "Failed to fetch vendor profile" }, { status: 500 });
     }
 
-    const vendorId = vendor.id;
+    const vendorId = vendorData.id;
     const periodDays = parseInt(period);
     const periodStart = new Date();
     periodStart.setDate(periodStart.getDate() - periodDays);
 
-    // Calculate total earnings (all completed orders)
-    const totalEarningsResult = await db
-      .select({ total: sum(orders.vendorAmount) })
-      .from(orders)
-      .where(and(
-        eq(orders.vendorId, vendorId),
-        eq(orders.paymentStatus, "completed")
-      ));
-    const totalEarnings = parseFloat(totalEarningsResult[0].total || "0");
+    // Calculate total earnings (all completed orders) using Supabase RPC or aggregation
+    // Supabase doesn't have direct sum aggregation in select, so we'll fetch and sum client-side
+    const { data: totalOrders, error: totalError } = await supabase
+      .from('orders')
+      .select('vendor_amount')
+      .eq('vendor_id', vendorId)
+      .eq('payment_status', 'completed');
+
+    if (totalError) {
+      logger.error("[Vendor Earnings] Failed to fetch total earnings", totalError);
+      return NextResponse.json({ error: "Failed to calculate earnings" }, { status: 500 });
+    }
+
+    const totalEarnings = (totalOrders || []).reduce((sum, order) => {
+      return sum + parseFloat(order.vendor_amount || "0");
+    }, 0);
 
     // Calculate period earnings
-    const periodEarningsResult = await db
-      .select({ total: sum(orders.vendorAmount) })
-      .from(orders)
-      .where(and(
-        eq(orders.vendorId, vendorId),
-        eq(orders.paymentStatus, "completed"),
-        gte(orders.createdAt, periodStart)
-      ));
-    const periodEarnings = parseFloat(periodEarningsResult[0].total || "0");
+    const { data: periodOrders, error: periodError } = await supabase
+      .from('orders')
+      .select('vendor_amount')
+      .eq('vendor_id', vendorId)
+      .eq('payment_status', 'completed')
+      .gte('created_at', periodStart.toISOString());
+
+    if (periodError) {
+      logger.error("[Vendor Earnings] Failed to fetch period earnings", periodError);
+      return NextResponse.json({ error: "Failed to calculate earnings" }, { status: 500 });
+    }
+
+    const periodEarnings = (periodOrders || []).reduce((sum, order) => {
+      return sum + parseFloat(order.vendor_amount || "0");
+    }, 0);
 
     // Calculate pending earnings (orders with pending payment)
-    const pendingEarningsResult = await db
-      .select({ total: sum(orders.vendorAmount) })
-      .from(orders)
-      .where(and(
-        eq(orders.vendorId, vendorId),
-        eq(orders.paymentStatus, "pending")
-      ));
-    const pendingEarnings = parseFloat(pendingEarningsResult[0].total || "0");
+    const { data: pendingOrders, error: pendingError } = await supabase
+      .from('orders')
+      .select('vendor_amount')
+      .eq('vendor_id', vendorId)
+      .eq('payment_status', 'pending');
+
+    if (pendingError) {
+      logger.error("[Vendor Earnings] Failed to fetch pending earnings", pendingError);
+      return NextResponse.json({ error: "Failed to calculate earnings" }, { status: 500 });
+    }
+
+    const pendingEarnings = (pendingOrders || []).reduce((sum, order) => {
+      return sum + parseFloat(order.vendor_amount || "0");
+    }, 0);
 
     // Count completed orders in period
-    const completedOrdersResult = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(orders)
-      .where(and(
-        eq(orders.vendorId, vendorId),
-        eq(orders.paymentStatus, "completed"),
-        gte(orders.createdAt, periodStart)
-      ));
-    const completedOrders = Number(completedOrdersResult[0].count || 0);
+    const { count: completedOrders, error: countError } = await supabase
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+      .eq('vendor_id', vendorId)
+      .eq('payment_status', 'completed')
+      .gte('created_at', periodStart.toISOString());
+
+    if (countError) {
+      logger.error("[Vendor Earnings] Failed to count orders", countError);
+      return NextResponse.json({ error: "Failed to calculate earnings" }, { status: 500 });
+    }
 
     return NextResponse.json({
       totalEarnings,

@@ -17,7 +17,8 @@ interface OtpInputProps {
 
 /**
  * OTP input component (6 digits)
- * Swiggy Dec 2025 pattern: Auto-submit on 6 digits, resend with cooldown
+ * Swiggy Dec 2025 pattern: SMS autofill, manual submit, resend with cooldown
+ * No auto-submit - user must click verify button (removes anti-pattern)
  */
 export function OtpInput({
   value,
@@ -30,12 +31,6 @@ export function OtpInput({
 }: OtpInputProps) {
   const [cooldown, setCooldown] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (value.length === 6) {
-      onComplete(value);
-    }
-  }, [value, onComplete]);
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -56,6 +51,9 @@ export function OtpInput({
     }
   };
 
+  // SMS autofill is handled by browser via autocomplete="one-time-code"
+  // User must click "Verify & Sign In" button to submit (no auto-submit anti-pattern)
+
   return (
     <div className="space-y-3">
       <div className="space-y-1.5">
@@ -68,6 +66,7 @@ export function OtpInput({
           placeholder="Enter 6-digit code"
           disabled={disabled}
           maxLength={6}
+          autoComplete="one-time-code"
           className={cn(
             "text-center text-2xl tracking-widest font-semibold h-14",
             error && "border-destructive"

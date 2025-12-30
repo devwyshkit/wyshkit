@@ -3,21 +3,23 @@ import { createAddressSchema } from "@/lib/validations/addresses";
 import { logger } from "@/lib/utils/logger";
 import { requireAuth } from "@/lib/auth/server";
 import { isAuthError, isErrorWithStatus, formatApiError } from "@/lib/types/api-errors";
-import { getSupabaseServiceClient } from "@/lib/supabase/client";
+import { createSupabaseServerClientWithRequest } from "@/lib/supabase/client";
 
 export async function GET(request: Request) {
   try {
     const user = await requireAuth(request);
     const userId = user.id;
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use regular client for authenticated requests - RLS handles access control
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       return NextResponse.json({ error: "Database not available" }, { status: 503 });
     }
 
+    // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
     const { data: userAddresses, error } = await supabase
       .from("addresses")
-      .select("*")
+      .select("id, user_id, recipient_name, phone, address, city, pincode, lat, lng, label, is_default, created_at, updated_at")
       .eq("user_id", userId)
       .order("is_default", { ascending: false });
 
@@ -33,6 +35,7 @@ export async function GET(request: Request) {
       pincode: addr.pincode,
       lat: addr.lat ? parseFloat(addr.lat) : undefined,
       lng: addr.lng ? parseFloat(addr.lng) : undefined,
+      label: (addr.label as 'Home' | 'Work' | 'Other') || 'Home',
       isDefault: addr.is_default,
       createdAt: addr.created_at,
       updatedAt: addr.updated_at,
@@ -72,7 +75,8 @@ export async function POST(request: Request) {
 
     const data = validationResult.data;
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use regular client for authenticated requests - RLS handles access control
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       return NextResponse.json({ error: "Database not available" }, { status: 503 });
     }
@@ -95,6 +99,7 @@ export async function POST(request: Request) {
         pincode: data.pincode,
         lat: data.lat?.toString(),
         lng: data.lng?.toString(),
+        label: data.label || 'Home',
         is_default: data.isDefault || false,
       })
       .select()
@@ -114,7 +119,8 @@ export async function POST(request: Request) {
         city: newAddress.city,
         pincode: newAddress.pincode,
         lat: newAddress.lat ? parseFloat(newAddress.lat) : undefined,
-        lng: newAddress.lng ? parseFloat(newAddress.lat) : undefined,
+        lng: newAddress.lng ? parseFloat(newAddress.lng) : undefined,
+        label: (newAddress.label as 'Home' | 'Work' | 'Other') || 'Home',
         isDefault: newAddress.is_default,
         createdAt: newAddress.created_at,
         updatedAt: newAddress.updated_at,

@@ -6,6 +6,7 @@
 import { db } from "./index";
 import { vendors, products, users, wallet } from "./schema";
 import { logger } from "@/lib/utils/logger";
+import { getSupabaseServiceClient } from "@/lib/supabase/client";
 
 // Seed data
 const seedUsers = [
@@ -41,14 +42,8 @@ const seedUsers = [
     role: "vendor",
     city: "Bangalore",
   },
-  {
-    id: "00000000-0000-0000-0000-000000000005",
-    email: "admin@example.com",
-    phone: "+919876543214",
-    name: "Admin User",
-    role: "admin",
-    city: "Bangalore",
-  },
+  // NOTE: No default admin account - admins must be created manually via Supabase Dashboard
+  // This prevents security vulnerabilities from default admin accounts
 ];
 
 const seedVendors = [
@@ -57,7 +52,7 @@ const seedVendors = [
     userId: "00000000-0000-0000-0000-000000000002",
     name: "Artisan Crafts",
     description: "Handmade gifts and personalized items",
-    image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38",
+    image: "https://picsum.photos/800/600?random=1",
     rating: "4.5",
     isHyperlocal: true,
     city: "Bangalore",
@@ -67,13 +62,14 @@ const seedVendors = [
     status: "approved",
     onboardingStatus: "approved",
     commissionRate: "18",
+    isOnline: true, // Swiggy Dec 2025 pattern: Explicit seed data matching schema
   },
   {
     id: "10000000-0000-0000-0000-000000000002",
     userId: "00000000-0000-0000-0000-000000000004",
     name: "The Memento Co.",
     description: "Handcrafted ceramics and pottery for your loved ones",
-    image: "https://images.unsplash.com/photo-1522673607200-1648482ce486",
+    image: "https://picsum.photos/800/600?random=2",
     rating: "4.7",
     isHyperlocal: true,
     city: "Bangalore",
@@ -83,13 +79,14 @@ const seedVendors = [
     status: "approved",
     onboardingStatus: "approved",
     commissionRate: "18",
+    isOnline: true, // Swiggy Dec 2025 pattern: Explicit seed data matching schema
   },
   {
     id: "10000000-0000-0000-0000-000000000003",
     userId: "00000000-0000-0000-0000-000000000002",
     name: "Glint & Glow",
     description: "Exquisite handmade jewelry with custom engraving options",
-    image: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b",
+    image: "https://picsum.photos/800/600?random=3",
     rating: "4.9",
     isHyperlocal: true,
     city: "Bangalore",
@@ -99,13 +96,14 @@ const seedVendors = [
     status: "approved",
     onboardingStatus: "approved",
     commissionRate: "18",
+    isOnline: true, // Swiggy Dec 2025 pattern: Explicit seed data matching schema
   },
   {
     id: "10000000-0000-0000-0000-000000000004",
     userId: "00000000-0000-0000-0000-000000000002",
     name: "Tech Personalize",
     description: "Custom tech accessories with laser engraving",
-    image: "https://images.unsplash.com/photo-1588423770574-91092b605996",
+    image: "https://picsum.photos/800/600?random=4",
     rating: "4.6",
     isHyperlocal: true,
     city: "Bangalore",
@@ -115,13 +113,14 @@ const seedVendors = [
     status: "approved",
     onboardingStatus: "approved",
     commissionRate: "18",
+    isOnline: true, // Swiggy Dec 2025 pattern: Explicit seed data matching schema
   },
   {
     id: "10000000-0000-0000-0000-000000000005",
     userId: "00000000-0000-0000-0000-000000000004",
     name: "Sweet Memories Bakery",
     description: "Custom cakes and baked goods for special occasions",
-    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587",
+    image: "https://picsum.photos/800/600?random=5",
     rating: "4.8",
     isHyperlocal: true,
     city: "Bangalore",
@@ -131,6 +130,7 @@ const seedVendors = [
     status: "approved",
     onboardingStatus: "approved",
     commissionRate: "18",
+    isOnline: true, // Swiggy Dec 2025 pattern: Explicit seed data matching schema
   },
 ];
 
@@ -142,7 +142,7 @@ const seedProducts = [
     name: "Custom Engraved Mug",
     description: "Personalized ceramic mug with your message",
     price: "599",
-    image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d",
+    image: "https://picsum.photos/800/600?random=6",
     category: "Ceramics",
     isPersonalizable: true,
     isActive: true,
@@ -172,7 +172,7 @@ const seedProducts = [
     name: "Personalized Photo Frame",
     description: "Wooden photo frame with custom engraving",
     price: "899",
-    image: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0",
+    image: "https://picsum.photos/800/600?random=7",
     category: "Home Decor",
     isPersonalizable: true,
     isActive: true,
@@ -193,7 +193,7 @@ const seedProducts = [
     name: "Hand-Painted Ceramic Bowl",
     description: "Artisan-crafted ceramic bowl with custom artwork",
     price: "1299",
-    image: "https://images.unsplash.com/photo-1574482620826-40685ca5ede2",
+    image: "https://picsum.photos/800/600?random=8",
     category: "Ceramics",
     isPersonalizable: true,
     isActive: true,
@@ -213,7 +213,7 @@ const seedProducts = [
     name: "Custom Pottery Set",
     description: "Set of 4 hand-thrown ceramic mugs",
     price: "2499",
-    image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d",
+    image: "https://picsum.photos/800/600?random=6",
     category: "Ceramics",
     isPersonalizable: true,
     isActive: true,
@@ -225,7 +225,7 @@ const seedProducts = [
     name: "Engraved Silver Pendant",
     description: "Minimal silver pendant with custom text engraving",
     price: "3499",
-    image: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b",
+    image: "https://picsum.photos/800/600?random=3",
     category: "Jewelry",
     isPersonalizable: true,
     isActive: true,
@@ -245,7 +245,7 @@ const seedProducts = [
     name: "Custom Name Ring",
     description: "Gold-plated ring with name engraving",
     price: "1999",
-    image: "https://images.unsplash.com/photo-1603561591411-07134e71a2a9",
+    image: "https://picsum.photos/800/600?random=9",
     category: "Jewelry",
     isPersonalizable: true,
     isActive: true,
@@ -257,7 +257,7 @@ const seedProducts = [
     name: "Engraved AirPods Case",
     description: "Premium AirPods case with laser engraving",
     price: "1299",
-    image: "https://images.unsplash.com/photo-1588423770574-91092b605996",
+    image: "https://picsum.photos/800/600?random=4",
     category: "Tech",
     isPersonalizable: true,
     isActive: true,
@@ -277,7 +277,7 @@ const seedProducts = [
     name: "Custom Phone Case",
     description: "Personalized phone case with photo printing",
     price: "899",
-    image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbab",
+    image: "https://picsum.photos/800/600?random=10",
     category: "Tech",
     isPersonalizable: true,
     isActive: true,
@@ -298,7 +298,7 @@ const seedProducts = [
     name: "Custom Birthday Cake",
     description: "Delicious birthday cake with custom message and design",
     price: "1499",
-    image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587",
+    image: "https://picsum.photos/800/600?random=5",
     category: "Cakes",
     isPersonalizable: true,
     isActive: true,
@@ -329,7 +329,7 @@ const seedProducts = [
     name: "Anniversary Cake",
     description: "Special anniversary cake with photo printing option",
     price: "1999",
-    image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187",
+    image: "https://picsum.photos/800/600?random=11",
     category: "Cakes",
     isPersonalizable: true,
     isActive: true,
@@ -345,9 +345,47 @@ export async function seedDatabase() {
   try {
     logger.info("[Seed] Starting database seed...");
 
-    // Insert users
+    // Create Supabase Auth users and insert into database
     logger.info("[Seed] Seeding users...");
+    const supabaseService = getSupabaseServiceClient();
+    
     for (const user of seedUsers) {
+      // Create Supabase Auth user if service client is available
+      if (supabaseService) {
+        try {
+          // Check if user already exists in Supabase Auth
+          const { data: existingAuthUser } = await supabaseService.auth.admin.getUserById(user.id);
+          
+          if (!existingAuthUser?.user) {
+            // Create user in Supabase Auth with the same ID
+            const { data: authUser, error: authError } = await supabaseService.auth.admin.createUser({
+              id: user.id,
+              email: user.email || undefined,
+              phone: user.phone || undefined,
+              email_confirm: true,
+              phone_confirm: true,
+              user_metadata: {
+                name: user.name,
+                role: user.role,
+              },
+            });
+
+            if (authError) {
+              logger.warn(`[Seed] Failed to create Supabase Auth user for ${user.id}:`, authError.message);
+              // Continue with database insert anyway
+            } else {
+              logger.info(`[Seed] Created Supabase Auth user: ${user.id}`);
+            }
+          } else {
+            logger.debug(`[Seed] Supabase Auth user already exists: ${user.id}`);
+          }
+        } catch (error) {
+          logger.warn(`[Seed] Error creating Supabase Auth user for ${user.id}:`, error);
+          // Continue with database insert anyway
+        }
+      }
+
+      // Insert user into database
       await db.insert(users).values(user).onConflictDoNothing();
     }
 
@@ -362,9 +400,9 @@ export async function seedDatabase() {
     for (const product of seedProducts) {
       try {
         await db.insert(products).values(product).onConflictDoNothing();
-        console.log(`[Seed] Inserted product: ${product.name}`);
+        logger.debug(`[Seed] Inserted product: ${product.name}`);
       } catch (err) {
-        console.error(`[Seed] Failed to insert product: ${product.name}`, err);
+        logger.error(`[Seed] Failed to insert product: ${product.name}`, err);
       }
     }
 
@@ -385,26 +423,15 @@ export async function seedDatabase() {
 }
 
 // Run seed if called directly
+// WARNING: This should only be used in development. In production, use the API endpoint with admin authentication.
 if (require.main === module || (import.meta as any).main) {
   seedDatabase()
     .then(() => {
-      // Seed completed - use logger if available, otherwise console
-      if (typeof logger !== "undefined") {
-        logger.info("Seed completed");
-      } else {
-        // eslint-disable-next-line no-console
-        console.log("Seed completed");
-      }
+      logger.info("[Seed] Seed completed successfully");
       process.exit(0);
     })
     .catch((error) => {
-      // Seed failed - use logger if available, otherwise console
-      if (typeof logger !== "undefined") {
-        logger.error("Seed failed", error);
-      } else {
-        // eslint-disable-next-line no-console
-        console.error("Seed failed:", error);
-      }
+      logger.error("[Seed] Seed failed", error);
       process.exit(1);
     });
 }

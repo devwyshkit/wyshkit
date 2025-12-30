@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/server";
 import { logger } from "@/lib/utils/logger";
-import { getSupabaseServiceClient } from "@/lib/supabase/client";
+import { createSupabaseServerClientWithRequest } from "@/lib/supabase/client";
 
 /**
  * Vendor Orders API
@@ -18,7 +18,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const filter = searchParams.get("filter") || "all";
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use regular client for authenticated requests - RLS handles access control
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       logger.error("[Vendor Orders] Supabase client not available");
       return NextResponse.json({ error: "Service temporarily unavailable" }, { status: 503 });
@@ -36,9 +37,10 @@ export async function GET(request: Request) {
 
     const vendorId = vendors[0].id;
 
+    // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
     let query = supabase
       .from("orders")
-      .select("*")
+      .select("id, order_number, customer_id, vendor_id, status, sub_status, items, item_total, delivery_fee, platform_fee, cashback_used, total, delivery_type, delivery_address, payment_id, payment_status, created_at, updated_at")
       .eq("vendor_id", vendorId);
 
     if (filter === "today") {

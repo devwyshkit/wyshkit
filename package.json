@@ -4,7 +4,9 @@
     "private": true,
     "scripts": {
         "dev": "next dev --turbopack",
+        "dev:clean": "rm -rf .next .turbo && npm run dev",
         "build": "next build",
+        "build:clean": "rm -rf .next .turbo && npm run build",
         "start": "next start",
         "lint": "next lint",
         "db:generate": "drizzle-kit generate",
@@ -49,6 +51,7 @@
         "@react-three/drei": "^10.4.4",
         "@react-three/fiber": "^9.0.0-alpha.8",
         "@sentry/nextjs": "^10.32.1",
+        "@supabase/ssr": "^0.8.0",
         "@supabase/supabase-js": "^2.89.0",
         "@tabler/icons-react": "^3.35.0",
         "@tailwindcss/typography": "^0.5.19",

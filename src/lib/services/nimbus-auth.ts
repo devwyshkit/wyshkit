@@ -2,6 +2,9 @@
  * Nimbus API Authentication Service
  * Handles login, token storage, and token refresh
  * Following Nimbuspost Partners API documentation: https://documenter.getpostman.com/view/9692837/TW6wHnoz
+ * 
+ * NOTE: This service is prepared but not currently integrated.
+ * Used by NimbusService for delivery partner integration (planned for future).
  */
 
 import { env } from "@/lib/config/env";

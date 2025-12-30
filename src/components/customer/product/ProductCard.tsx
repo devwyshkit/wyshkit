@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +16,8 @@ interface ProductCardProps {
   className?: string;
 }
 
-export function ProductCard({
+// Swiggy Dec 2025 pattern: Memoize expensive components to prevent unnecessary re-renders
+export const ProductCard = React.memo(function ProductCard({
   name,
   price,
   image,
@@ -88,4 +90,6 @@ export function ProductCard({
       </div>
     </div>
   );
-}
+});
+
+});

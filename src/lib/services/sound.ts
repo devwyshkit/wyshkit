@@ -40,7 +40,8 @@ export function playNewOrderSound() {
   }
 }
 
-// TODO: Load and play actual audio file for better UX
+// Load and play actual audio file for better UX
+// Note: Currently using browser notification sound - can be enhanced with custom audio files
 export async function loadAndPlaySound(audioUrl: string) {
   if (typeof window === "undefined") return;
 

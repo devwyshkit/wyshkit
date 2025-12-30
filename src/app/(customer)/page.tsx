@@ -1,44 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Search, ChevronRight } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Search, ChevronRight, AlertCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { VendorCard } from "@/components/customer/home/VendorCard";
 import { OccasionCard } from "@/components/customer/home/OccasionCard";
 import { HeroBanner } from "@/components/customer/home/HeroBanner";
 import { CategoryChip } from "@/components/customer/home/CategoryChip";
-import type { Vendor } from "@/types/vendor";
+import { Button } from "@/components/ui/button";
+import { useVendors } from "@/hooks/api/useVendors";
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("All");
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [loading, setLoading] = useState(true);
+  
+  // Swiggy Dec 2025 pattern: Use direct Supabase hook instead of API route
+  const { vendors, loading, error, refetch } = useVendors();
 
-  useEffect(() => {
-    fetch("/api/vendors")
-      .then((res) => res.json())
-      .then((data) => {
-        setVendors(data.vendors || []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+  // Swiggy Dec 2025 pattern: Memoize static data to prevent recreation on every render
+  const categories = useMemo(() => ["All", "Ceramics", "Jewelry", "Tech", "Cakes", "Home Decor"], []);
 
-  const categories = ["All", "Ceramics", "Jewelry", "Tech", "Cakes", "Home Decor"];
+  const occasions = useMemo(() => [
+    { name: "Birthday", image: "https://picsum.photos/800/600?random=12", href: "/search?occasion=birthday" },
+    { name: "Anniversary", image: "https://picsum.photos/800/600?random=2", href: "/search?occasion=anniversary" },
+    { name: "Wedding", image: "https://picsum.photos/800/600?random=13", href: "/search?occasion=wedding" },
+    { name: "Housewarming", image: "https://picsum.photos/800/600?random=1", href: "/search?occasion=housewarming" },
+  ], []);
 
-  const occasions = [
-    { name: "Birthday", image: "https://images.unsplash.com/photo-1558636508-e0db3814bd1d?w=200&h=200&fit=crop", href: "/search?occasion=birthday" },
-    { name: "Anniversary", image: "https://images.unsplash.com/photo-1522673607200-1648482ce486?w=200&h=200&fit=crop", href: "/search?occasion=anniversary" },
-    { name: "Wedding", image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=200&h=200&fit=crop", href: "/search?occasion=wedding" },
-    { name: "Housewarming", image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=200&h=200&fit=crop", href: "/search?occasion=housewarming" },
-  ];
-
-  const heroSlides = [
+  const heroSlides = useMemo(() => [
     {
       id: "1",
       title: "20% off your first order",
       subtitle: "Limited Time Offer",
-      image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&h=400&fit=crop",
+      image: "https://picsum.photos/800/600?random=1",
       ctaText: "Order Now",
       ctaLink: "/search",
     },
@@ -46,15 +39,26 @@ export default function Home() {
       id: "2", 
       title: "Handcrafted with love",
       subtitle: "Discover Local Artisans",
-      image: "https://images.unsplash.com/photo-1522673607200-1648482ce486?w=800&h=400&fit=crop",
+      image: "https://picsum.photos/800/600?random=2",
       ctaText: "Explore",
       ctaLink: "/search",
     },
-  ];
+  ], []);
 
-  const filteredVendors = activeCategory === "All" 
-    ? vendors 
-    : vendors;
+  // Swiggy Dec 2025 pattern: Fix broken category filtering - filter vendors by category
+  const filteredVendors = useMemo(() => {
+    if (activeCategory === "All") {
+      return vendors;
+    }
+    // Filter vendors by category - check description and tags
+    return vendors.filter(vendor => {
+      const categoryLower = activeCategory.toLowerCase();
+      return (
+        vendor.description?.toLowerCase().includes(categoryLower) ||
+        (Array.isArray(vendor.tags) && vendor.tags.some(tag => tag.toLowerCase().includes(categoryLower)))
+      );
+    });
+  }, [vendors, activeCategory]);
 
   return (
     <div className="flex flex-col min-h-screen pb-20">
@@ -118,13 +122,29 @@ export default function Home() {
               </div>
             ))}
           </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-destructive" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-foreground font-medium">Unable to load artisans</p>
+                <p className="text-muted-foreground text-sm">{error}</p>
+              </div>
+              <Button onClick={refetch} variant="outline" size="sm">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Try Again
+              </Button>
+            </div>
+          </div>
         ) : filteredVendors.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-[15px]">No artisans available yet</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredVendors.map((vendor) => (
+            {filteredVendors.map((vendor, index) => (
               <VendorCard
                 key={vendor.id}
                 id={vendor.id}
@@ -134,6 +154,7 @@ export default function Home() {
                 description={vendor.description}
                 city={vendor.city}
                 isOnline={vendor.isOnline}
+                priority={index < 4} // Priority for first 4 vendor cards (LCP optimization)
               />
             ))}
           </div>

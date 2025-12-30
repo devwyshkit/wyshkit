@@ -6,9 +6,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClientWithRequest } from "@/lib/supabase/client";
 import { logger } from "@/lib/utils/logger";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 
 /**
  * Handle Google OAuth callback from Supabase
@@ -20,12 +17,14 @@ export async function GET(request: Request) {
     const code = searchParams.get("code");
     const error = searchParams.get("error");
     const errorDescription = searchParams.get("error_description");
+    const state = searchParams.get("state");
 
     // Handle OAuth errors
     if (error) {
       logger.error("[Google OAuth] OAuth error", {
         error,
         errorDescription,
+        url: request.url,
       });
       return NextResponse.redirect(
         new URL(
@@ -35,14 +34,25 @@ export async function GET(request: Request) {
       );
     }
 
+    // If no code, check if this might be a fragment-based flow
+    // Fragment-based flows put tokens in URL hash, which server can't read
+    // Redirect to client-side handler
     if (!code) {
-      logger.error("[Google OAuth] No code provided");
-      return NextResponse.redirect(
-        new URL("/login?error=oauth_failed", request.url)
-      );
+      logger.warn("[Google OAuth] No code parameter - may be fragment-based flow", {
+        url: request.url,
+        hasState: !!state,
+      });
+      
+      // Redirect to client-side handler which can read URL fragments
+      // The client-side handler will extract tokens from the hash
+      const clientCallbackUrl = state 
+        ? `/auth/callback?state=${encodeURIComponent(state)}`
+        : "/auth/callback";
+      
+      return NextResponse.redirect(new URL(clientCallbackUrl, request.url));
     }
 
-    const supabase = createSupabaseServerClientWithRequest(request);
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       logger.error("[Google OAuth] Supabase client not available");
       return NextResponse.redirect(
@@ -51,53 +61,72 @@ export async function GET(request: Request) {
     }
 
     // Exchange code for session
+    // With @supabase/ssr, exchangeCodeForSession automatically sets cookies through the cookie store
     const { data: authData, error: authError } = await supabase.auth.exchangeCodeForSession(code);
 
     if (authError || !authData.user) {
       logger.error("[Google OAuth] Failed to exchange code for session", {
         error: authError?.message,
         code: authError?.code,
+        status: authError?.status,
+        url: request.url,
       });
+      
+      // Provide more specific error messages
+      let errorMessage = "oauth_failed";
+      if (authError?.message) {
+        if (authError.message.includes("expired") || authError.message.includes("invalid")) {
+          errorMessage = "The authorization code has expired or is invalid. Please try signing in again.";
+        } else if (authError.message.includes("redirect_uri")) {
+          errorMessage = "Redirect URL mismatch. Please check Supabase Dashboard configuration.";
+        } else {
+          errorMessage = authError.message;
+        }
+      }
+      
       return NextResponse.redirect(
         new URL(
-          `/login?error=${encodeURIComponent(authError?.message || "oauth_failed")}`,
+          `/login?error=${encodeURIComponent(errorMessage)}`,
           request.url
         )
       );
     }
 
-    // Explicitly set session cookie - Swiggy Dec 2025 pattern: Explicit session management
+    // With @supabase/ssr, the session is automatically set in cookies via exchangeCodeForSession
+    // No need to explicitly call setSession - it's already handled
     if (authData.session) {
-      try {
-        await supabase.auth.setSession(authData.session);
-        logger.info("[Google OAuth] Session set successfully", {
-          userId: authData.user.id,
-          sessionExpiresAt: authData.session.expires_at,
-        });
-      } catch (sessionError) {
-        logger.error("[Google OAuth] Failed to set session", {
-          error: sessionError instanceof Error ? sessionError.message : String(sessionError),
-          userId: authData.user.id,
-        });
-        // Continue anyway - session might still be accessible via cookies
-      }
+      logger.info("[Google OAuth] Session set successfully", {
+        userId: authData.user.id,
+        sessionExpiresAt: authData.session.expires_at,
+      });
     } else {
       logger.warn("[Google OAuth] No session in authData", {
         userId: authData.user.id,
       });
     }
 
-    // Sync user to our database
-    if (db) {
-      const existingUser = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, authData.user.id))
-        .limit(1)
-        .then((rows) => rows[0] || null);
+    // Sync user to our database using Supabase client (has auth context for RLS)
+    // After exchangeCodeForSession, the Supabase client has the authenticated user's context
+    // This allows RLS policies to work correctly (auth.uid() is available)
+    try {
+      // Check if user exists
+      // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
+      const { data: existingUser, error: selectError } = await supabase
+        .from('users')
+        .select('id, phone, email, name, role, city, created_at, updated_at')
+        .eq('id', authData.user.id)
+        .maybeSingle();
 
-      if (!existingUser) {
-        // Create new user from OAuth data
+      if (selectError && selectError.code !== 'PGRST116') { // PGRST116 = not found (acceptable)
+        logger.error("[Google OAuth] Database select failed", {
+          error: selectError.message,
+          code: selectError.code,
+          details: selectError.details,
+          hint: selectError.hint,
+        });
+        // Continue anyway - user sync is not critical for OAuth flow
+      } else if (!existingUser) {
+        // Create new user from OAuth data - RLS policy allows users to insert their own record
         const phone = authData.user.phone || null;
         const email = authData.user.email || null;
         const name = authData.user.user_metadata?.full_name || 
@@ -105,18 +134,31 @@ export async function GET(request: Request) {
                     email?.split("@")[0] || 
                     "User";
 
-        await db.insert(users).values({
-          id: authData.user.id,
-          phone: phone || `oauth_${authData.user.id}`, // Placeholder if no phone
-          email,
-          name,
-          role: "customer",
-        });
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert({
+            id: authData.user.id,
+            phone: phone || `oauth_${authData.user.id}`, // Placeholder if no phone
+            email,
+            name,
+            role: 'customer',
+          });
 
-        logger.info(`[Google OAuth] New user created: ${authData.user.id}`);
+        if (insertError) {
+          logger.error("[Google OAuth] Database insert failed", {
+            error: insertError.message,
+            code: insertError.code,
+            details: insertError.details,
+            hint: insertError.hint,
+            userId: authData.user.id,
+          });
+          // Continue anyway - user sync is not critical for OAuth flow
+        } else {
+          logger.info(`[Google OAuth] New user created: ${authData.user.id}`);
+        }
       } else {
-        // Update user info if needed
-        const updates: Partial<typeof users.$inferInsert> = {};
+        // Update user info if needed - RLS policy allows users to update their own record
+        const updates: Record<string, unknown> = {};
         if (authData.user.email && !existingUser.email) {
           updates.email = authData.user.email;
         }
@@ -125,12 +167,30 @@ export async function GET(request: Request) {
         }
 
         if (Object.keys(updates).length > 0) {
-          await db
-            .update(users)
-            .set(updates)
-            .where(eq(users.id, authData.user.id));
+          const { error: updateError } = await supabase
+            .from('users')
+            .update(updates)
+            .eq('id', authData.user.id);
+
+          if (updateError) {
+            logger.error("[Google OAuth] Database update failed", {
+              error: updateError.message,
+              code: updateError.code,
+              details: updateError.details,
+              hint: updateError.hint,
+              userId: authData.user.id,
+            });
+            // Continue anyway - user sync is not critical for OAuth flow
+          }
         }
       }
+    } catch (dbError) {
+      logger.error("[Google OAuth] Database sync failed", {
+        error: dbError instanceof Error ? dbError.message : String(dbError),
+        stack: dbError instanceof Error ? dbError.stack : undefined,
+        userId: authData.user.id,
+      });
+      // Continue anyway - user sync is not critical for OAuth flow
     }
 
     // Get return URL from state or default to home
@@ -139,9 +199,20 @@ export async function GET(request: Request) {
     // Redirect to return URL or home
     return NextResponse.redirect(new URL(returnUrl, request.url));
   } catch (error) {
-    logger.error("[Google OAuth] Callback failed", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    logger.error("[Google OAuth] Callback failed", {
+      error: errorMessage,
+      stack: errorStack,
+      url: request.url,
+    });
+    
     return NextResponse.redirect(
-      new URL("/login?error=oauth_failed", request.url)
+      new URL(
+        `/login?error=${encodeURIComponent("An unexpected error occurred during authentication. Please try again.")}`,
+        request.url
+      )
     );
   }
 }

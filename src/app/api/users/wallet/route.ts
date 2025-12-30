@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { wallet, walletTransactions } from "@/lib/db/schema";
+import { wallet, walletTransactions, users } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { logger } from "@/lib/utils/logger";
 import { requireAuth } from "@/lib/auth/server";
 import { isAuthError, isErrorWithStatus, formatApiError } from "@/lib/types/api-errors";
+import { getSupabaseServiceClient } from "@/lib/supabase/client";
 
 export async function GET(request: Request) {
   try {
@@ -19,6 +20,65 @@ export async function GET(request: Request) {
           history: [],
         },
       });
+    }
+
+    // Check if user exists in users table first (Swiggy Dec 2025 pattern: Ensure user exists)
+    let userExists = false;
+    try {
+      const userCheck = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+      userExists = userCheck.length > 0;
+    } catch (userCheckError: any) {
+      // If RLS recursion error (42P17), create user via service client
+      if (userCheckError?.code === '42P17' || userCheckError?.message?.includes('infinite recursion')) {
+        logger.warn("[API /users/wallet] RLS recursion error, creating user via service client", { userId });
+        const supabaseService = getSupabaseServiceClient();
+        if (supabaseService) {
+          try {
+            await supabaseService
+              .from('users')
+              .insert({
+                id: userId,
+                phone: `sync_${userId}`,
+                role: 'customer',
+              });
+            userExists = true;
+            logger.info("[API /users/wallet] User created via service client", { userId });
+          } catch (createError) {
+            logger.error("[API /users/wallet] Failed to create user via service client", createError);
+          }
+        }
+      } else {
+        logger.error("[API /users/wallet] Failed to check user existence", userCheckError);
+      }
+    }
+
+    // If user doesn't exist, create via service client (Swiggy Dec 2025 pattern: Guarantee user exists)
+    if (!userExists) {
+      logger.warn("[API /users/wallet] User not found in users table, creating via service client", { userId });
+      const supabaseService = getSupabaseServiceClient();
+      if (supabaseService) {
+        try {
+          await supabaseService
+            .from('users')
+            .insert({
+              id: userId,
+              phone: `sync_${userId}`,
+              role: 'customer',
+            });
+          logger.info("[API /users/wallet] User created via service client", { userId });
+        } catch (createError: any) {
+          logger.error("[API /users/wallet] Failed to create user via service client", {
+            error: createError.message,
+            code: createError.code,
+            userId,
+          });
+          // Continue anyway - wallet might still work
+        }
+      }
     }
 
     let userWallet = await db

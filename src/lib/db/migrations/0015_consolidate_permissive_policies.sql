@@ -1,0 +1,31 @@
+-- Document multiple permissive policies performance consideration
+-- Swiggy Dec 2025 pattern: Balance performance with security clarity
+--
+-- Multiple permissive policies exist for the same role/action on several tables.
+-- While this has a performance cost (each policy executes), it provides:
+-- 1. Clear separation of concerns (admin vs user policies)
+-- 2. Easier to understand and maintain
+-- 3. Better security audit trail
+--
+-- The performance impact is mitigated by:
+-- 1. RLS init plan optimization (auth.uid() wrapped in SELECT)
+-- 2. Proper indexing on foreign keys
+-- 3. Query optimization at application level
+--
+-- Tables with multiple permissive policies:
+-- - disputes: Admin + Customer policies (6 instances)
+-- - orders: Admin + Customer + Vendor policies (9 instances)
+-- - products: Admin + Public + Vendor policies (4 instances)
+-- - users: Admin + User policies (4 instances)
+-- - vendors: Admin + Public + Vendor policies (6 instances)
+-- - wallet: Admin + User policies (4 instances)
+-- - wallet_transactions: Admin + User policies (4 instances)
+--
+-- NOTE: Combining these policies would reduce performance overhead but:
+-- - Make policies more complex and harder to maintain
+-- - Reduce security audit clarity
+-- - Increase risk of policy errors
+--
+-- Current approach: Keep separate policies for clarity, optimize with init plan.
+-- Future: Monitor query performance and consider consolidation if needed.
+

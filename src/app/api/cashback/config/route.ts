@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { cashbackConfig } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { createSupabaseServerClientWithRequest, getSupabaseServiceClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/utils/logger";
 import { normalizeQueryParam } from "@/lib/utils/api-helpers";
 import { appConfig } from "@/lib/config/app";
 import { requireRole } from "@/lib/auth/server";
 import { isAuthError, formatApiError } from "@/lib/types/api-errors";
-import { isDevelopment } from "@/lib/config/env";
 
 /**
  * GET /api/cashback/config
@@ -20,74 +17,88 @@ export async function GET(request: Request) {
     const categoryId = normalizeQueryParam(searchParams.get("categoryId"));
     const vendorId = normalizeQueryParam(searchParams.get("vendorId"));
 
-    if (db) {
-      // Fetch global config
-      const [globalConfig] = await db
-        .select()
-        .from(cashbackConfig)
-        .where(and(eq(cashbackConfig.type, "global"), eq(cashbackConfig.isActive, true)))
-        .limit(1);
-
-      // Fetch category override if categoryId provided
-      let categoryOverride = null;
-      if (categoryId) {
-        const [override] = await db
-          .select()
-          .from(cashbackConfig)
-          .where(
-            and(
-              eq(cashbackConfig.type, "category"),
-              eq(cashbackConfig.entityId, categoryId),
-              eq(cashbackConfig.isActive, true)
-            )
-          )
-          .limit(1);
-        categoryOverride = override;
-      }
-
-      // Fetch vendor override if vendorId provided
-      let vendorOverride = null;
-      if (vendorId) {
-        const [override] = await db
-          .select()
-          .from(cashbackConfig)
-          .where(
-            and(
-              eq(cashbackConfig.type, "vendor"),
-              eq(cashbackConfig.entityId, vendorId),
-              eq(cashbackConfig.isActive, true)
-            )
-          )
-          .limit(1);
-        vendorOverride = override;
-      }
-
-      // Determine effective cashback percentage (vendor > category > global > default)
-      let effectivePercentage = appConfig.cashback.rate; // Default 10%
-      if (globalConfig) {
-        effectivePercentage = parseFloat(globalConfig.percentage);
-      }
-      if (categoryOverride) {
-        effectivePercentage = parseFloat(categoryOverride.percentage);
-      }
-      if (vendorOverride) {
-        effectivePercentage = parseFloat(vendorOverride.percentage);
-      }
-
+    // Use Supabase client (public read access for cashback config)
+    const supabase = await createSupabaseServerClientWithRequest(request);
+    if (!supabase) {
+      // Fallback to app config if Supabase not available
       return NextResponse.json({
-        percentage: effectivePercentage,
-        global: globalConfig ? parseFloat(globalConfig.percentage) : appConfig.cashback.rate,
-        category: categoryOverride ? parseFloat(categoryOverride.percentage) : null,
-        vendor: vendorOverride ? parseFloat(vendorOverride.percentage) : null,
+        percentage: appConfig.cashback.rate,
+        global: appConfig.cashback.rate,
+        category: null,
+        vendor: null,
       });
     }
 
-    // Fallback to app config if database not available
+    // Fetch global config using Supabase client
+    // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
+    const { data: globalConfigData, error: globalError } = await supabase
+      .from('cashback_config')
+      .select('id, type, entity_id, percentage, is_active, created_at, updated_at')
+      .eq('type', 'global')
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (globalError && globalError.code !== 'PGRST116') {
+      logger.error("[API /cashback/config] Failed to fetch global config", globalError);
+    }
+
+    const globalConfig = globalConfigData || null;
+
+    // Fetch category override if categoryId provided
+    let categoryOverride = null;
+    if (categoryId) {
+      // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
+      const { data: categoryData, error: categoryError } = await supabase
+        .from('cashback_config')
+        .select('id, type, entity_id, percentage, is_active, created_at, updated_at')
+        .eq('type', 'category')
+        .eq('entity_id', categoryId)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (categoryError && categoryError.code !== 'PGRST116') {
+        logger.error("[API /cashback/config] Failed to fetch category override", categoryError);
+      } else {
+        categoryOverride = categoryData || null;
+      }
+    }
+
+    // Fetch vendor override if vendorId provided
+    let vendorOverride = null;
+    if (vendorId) {
+      // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
+      const { data: vendorData, error: vendorError } = await supabase
+        .from('cashback_config')
+        .select('id, type, entity_id, percentage, is_active, created_at, updated_at')
+        .eq('type', 'vendor')
+        .eq('entity_id', vendorId)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (vendorError && vendorError.code !== 'PGRST116') {
+        logger.error("[API /cashback/config] Failed to fetch vendor override", vendorError);
+      } else {
+        vendorOverride = vendorData || null;
+      }
+    }
+
+    // Determine effective cashback percentage (vendor > category > global > default)
+    let effectivePercentage = appConfig.cashback.rate; // Default 10%
+    if (globalConfig) {
+      effectivePercentage = parseFloat(globalConfig.percentage || "0");
+    }
+    if (categoryOverride) {
+      effectivePercentage = parseFloat(categoryOverride.percentage || "0");
+    }
+    if (vendorOverride) {
+      effectivePercentage = parseFloat(vendorOverride.percentage || "0");
+    }
+
     return NextResponse.json({
-      percentage: appConfig.cashback.rate,
-      global: appConfig.cashback.rate,
-      category: null,
-      vendor: null,
+      percentage: effectivePercentage,
+      global: globalConfig ? parseFloat(globalConfig.percentage || "0") : appConfig.cashback.rate,
+      category: categoryOverride ? parseFloat(categoryOverride.percentage || "0") : null,
+      vendor: vendorOverride ? parseFloat(vendorOverride.percentage || "0") : null,
     });
   } catch (error) {
     logger.error("[API /cashback/config] Error", error);
@@ -109,12 +120,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { type, entityId, percentage, isActive } = body;
 
-    if (!db) {
-      if (isDevelopment) {
-        logger.warn("[API /cashback/config] Development mode: Using mock config update (database not available)");
-        return NextResponse.json({ success: true, _devMode: true });
-      }
-      return NextResponse.json({ error: "Database not available" }, { status: 503 });
+    // Use service role client for admin operations
+    const supabase = getSupabaseServiceClient();
+    if (!supabase) {
+      return NextResponse.json({ error: "Service temporarily unavailable" }, { status: 503 });
     }
 
     // Validate
@@ -130,36 +139,56 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Percentage must be between 0 and 100" }, { status: 400 });
     }
 
-    // Update or insert
-    const [existing] = await db
-      .select()
-      .from(cashbackConfig)
-      .where(
-        and(
-          eq(cashbackConfig.type, type),
-          entityId ? eq(cashbackConfig.entityId, entityId) : eq(cashbackConfig.entityId, null as any)
-        )
-      )
-      .limit(1);
+    // Check if existing config exists using Supabase client
+    // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
+    let query = supabase
+      .from('cashback_config')
+      .select('id, type, entity_id, percentage, is_active, created_at, updated_at')
+      .eq('type', type);
+    
+    if (entityId) {
+      query = query.eq('entity_id', entityId);
+    } else {
+      query = query.is('entity_id', null);
+    }
 
-    if (existing) {
+    const { data: existingData, error: selectError } = await query.maybeSingle();
+
+    if (selectError && selectError.code !== 'PGRST116') {
+      logger.error("[API /cashback/config] Failed to check existing config", selectError);
+      return NextResponse.json({ error: "Failed to update config" }, { status: 500 });
+    }
+
+    if (existingData) {
       // Update existing
-      await db
-        .update(cashbackConfig)
-        .set({
+      const { error: updateError } = await supabase
+        .from('cashback_config')
+        .update({
           percentage: percentage.toString(),
-          isActive: isActive !== undefined ? isActive : true,
-          updatedAt: new Date(),
+          is_active: isActive !== undefined ? isActive : true,
+          updated_at: new Date().toISOString(),
         })
-        .where(eq(cashbackConfig.id, existing.id));
+        .eq('id', existingData.id);
+
+      if (updateError) {
+        logger.error("[API /cashback/config] Failed to update config", updateError);
+        return NextResponse.json({ error: "Failed to update config" }, { status: 500 });
+      }
     } else {
       // Insert new
-      await db.insert(cashbackConfig).values({
-        type,
-        entityId: entityId || null,
-        percentage: percentage.toString(),
-        isActive: isActive !== undefined ? isActive : true,
-      });
+      const { error: insertError } = await supabase
+        .from('cashback_config')
+        .insert({
+          type,
+          entity_id: entityId || null,
+          percentage: percentage.toString(),
+          is_active: isActive !== undefined ? isActive : true,
+        });
+
+      if (insertError) {
+        logger.error("[API /cashback/config] Failed to insert config", insertError);
+        return NextResponse.json({ error: "Failed to create config" }, { status: 500 });
+      }
     }
 
     return NextResponse.json({ success: true });

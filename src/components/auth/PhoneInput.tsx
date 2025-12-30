@@ -68,6 +68,7 @@ export function PhoneInput({
           }}
           placeholder="Enter your phone number"
           disabled={disabled}
+          autoComplete="tel"
           className={cn(
             "border-0 focus-visible:ring-0 focus-visible:ring-offset-0 pr-3",
             !value.startsWith("+") ? "pl-0" : "pl-3"

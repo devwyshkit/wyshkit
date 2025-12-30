@@ -48,7 +48,7 @@ function AdminNotificationsContent() {
       const data = await apiClient.get<{ notifications: Notification[] }>("/notifications");
       setNotifications(data.notifications);
     } catch (error) {
-      console.error("Failed to fetch notifications:", error);
+      logger.error("[AdminNotifications] Failed to fetch notifications", error);
     } finally {
       setLoading(false);
     }
@@ -59,7 +59,7 @@ function AdminNotificationsContent() {
       await apiClient.patch("/notifications", { markAllAsRead: true });
       setNotifications(notifications.map(n => ({ ...n, read: true })));
     } catch (error) {
-      console.error("Failed to mark all as read:", error);
+      logger.error("[AdminNotifications] Failed to mark all as read", error);
     }
   };
 
@@ -68,7 +68,7 @@ function AdminNotificationsContent() {
       await apiClient.patch("/notifications", { notificationId: id });
       setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
     } catch (error) {
-      console.error("Failed to mark as read:", error);
+      logger.error("[AdminNotifications] Failed to mark as read", error);
     }
   };
 

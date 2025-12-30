@@ -203,7 +203,10 @@ export function subscribeToOrder(
         try {
           client.removeChannel(channel);
         } catch (cleanupError) {
-          // Ignore cleanup errors
+          // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
+          if (process.env.NODE_ENV === 'development') {
+            logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+          }
         }
         pollingUnsubscribe = startPollingFallback(orderId, callback);
         onConnectionStateChange?.(true, "polling");
@@ -344,7 +347,10 @@ export function subscribeToVendorOrders(
           try {
             client.removeChannel(channel);
           } catch (cleanupError) {
-            // Ignore cleanup errors
+            // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+            }
           }
           // Switch to polling - this will be handled by the return function
         } else {
@@ -370,7 +376,10 @@ export function subscribeToVendorOrders(
             try {
               client.removeChannel(channel);
             } catch (cleanupError) {
-              // Ignore cleanup errors
+              // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
+              if (process.env.NODE_ENV === 'development') {
+                logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+              }
             }
             pollingUnsubscribe = startVendorOrdersPolling(vendorId, callback);
           }
@@ -381,7 +390,10 @@ export function subscribeToVendorOrders(
           try {
             client.removeChannel(channel);
           } catch (cleanupError) {
-            // Ignore cleanup errors
+            // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+            }
           }
           pollingUnsubscribe = startVendorOrdersPolling(vendorId, callback);
         }
@@ -518,7 +530,10 @@ export function subscribeToNotifications(
           try {
             client.removeChannel(channel);
           } catch (cleanupError) {
-            // Ignore cleanup errors
+            // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+            }
           }
         } else {
           logger.debug(`[Realtime] Subscription status for user ${userId} notifications: ${status}`);
@@ -540,7 +555,10 @@ export function subscribeToNotifications(
             try {
               client.removeChannel(channel);
             } catch (cleanupError) {
-              // Ignore cleanup errors
+              // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
+              if (process.env.NODE_ENV === 'development') {
+                logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+              }
             }
             // Start polling fallback
             let lastNotificationId: string | null = null;
@@ -578,7 +596,10 @@ export function subscribeToNotifications(
           try {
             client.removeChannel(channel);
           } catch (cleanupError) {
-            // Ignore cleanup errors
+            // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+            }
           }
           // Start polling fallback
           let lastNotificationId: string | null = null;

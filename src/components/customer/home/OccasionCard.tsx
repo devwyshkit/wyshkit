@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -10,7 +11,8 @@ interface OccasionCardProps {
   href: string;
 }
 
-export function OccasionCard({ name, image, href }: OccasionCardProps) {
+// Swiggy Dec 2025 pattern: Memoize expensive components to prevent unnecessary re-renders
+export const OccasionCard = React.memo(function OccasionCard({ name, image, href }: OccasionCardProps) {
   return (
     <Link
       href={href}
@@ -33,6 +35,7 @@ export function OccasionCard({ name, image, href }: OccasionCardProps) {
           fill
           className="object-cover"
           sizes="(max-width: 768px) 64px, 80px"
+          priority
         />
       </div>
       
@@ -46,4 +49,4 @@ export function OccasionCard({ name, image, href }: OccasionCardProps) {
       </span>
     </Link>
   );
-}
+});

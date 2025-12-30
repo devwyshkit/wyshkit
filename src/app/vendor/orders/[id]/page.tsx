@@ -244,7 +244,7 @@ export default function VendorOrderDetailPage() {
                   <div>
                     <p className="text-xs text-muted-foreground">Customer Photo:</p>
                     <div className="relative w-20 h-20 rounded-lg overflow-hidden border bg-white mt-1">
-                      <Image src={item.customization.photo} alt="Customer Photo" fill className="object-cover" />
+                      <Image src={item.customization.photo} alt="Customer Photo" fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover" />
                     </div>
                   </div>
                 )}

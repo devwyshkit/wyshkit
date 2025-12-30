@@ -9,7 +9,9 @@ import { logger } from "@/lib/utils/logger";
  */
 export async function GET() {
   try {
+    // Swiggy Dec 2025 pattern: Use logger directly - if it fails, let it fail
     logger.debug("[API /health/supabase] Health check requested");
+    
     const status = await getSupabaseHealthStatus();
     
     // Return appropriate status code based on health
@@ -17,7 +19,14 @@ export async function GET() {
     
     return NextResponse.json(status, { status: statusCode });
   } catch (error) {
+    // Enhanced error handling with detailed information
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorType = error instanceof Error ? error.constructor.name : typeof error;
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    // Swiggy Dec 2025 pattern: Use logger directly - if it fails, let it fail
     logger.error("[API /health/supabase] Health check failed", error);
+    
     return NextResponse.json(
       {
         healthy: false,
@@ -25,8 +34,9 @@ export async function GET() {
         connectionWorking: false,
         realtimeEnabled: false,
         details: {
-          error: error instanceof Error ? error.message : "Unknown error",
-          errorType: error instanceof Error ? error.constructor.name : typeof error,
+          error: errorMessage,
+          errorType,
+          ...(process.env.NODE_ENV === 'development' && errorStack ? { stack: errorStack } : {}),
         },
       },
       { status: 503 }

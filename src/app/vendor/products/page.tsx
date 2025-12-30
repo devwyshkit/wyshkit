@@ -38,30 +38,16 @@ function VendorProductsContent() {
   const router = useRouter();
   const { user } = useAuth();
   const toast = useToast();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
+  // Swiggy Dec 2025 pattern: Use direct Supabase hook instead of API route
+  const { products, loading, error, refetch } = useVendorProducts();
 
   useEffect(() => {
     if (!user || user.role !== "vendor") {
       router.push("/");
       return;
     }
-
-    fetchProducts();
   }, [user, router]);
-
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const response = await apiClient.get<{ products: Product[] }>("/vendor/products");
-      setProducts(response.products || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load products");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleToggleActive = async (productId: string, currentStatus: boolean) => {
     try {
@@ -70,8 +56,8 @@ function VendorProductsContent() {
         !currentStatus ? "Product activated" : "Product deactivated",
         `Product is now ${!currentStatus ? "visible" : "hidden"} to customers`
       );
-      // Update local state for immediate feedback
-      setProducts(prev => prev.map(p => p.id === productId ? { ...p, isActive: !currentStatus } : p));
+      // Refetch products to get updated state
+      refetch();
     } catch (err) {
       toast.error("Update failed", "Could not update product status");
     }
@@ -96,7 +82,7 @@ function VendorProductsContent() {
     return (
       <div className="min-h-screen bg-background p-4 md:p-6">
         <div className="max-w-6xl mx-auto">
-          <ApiError message={error} onRetry={fetchProducts} />
+          <ApiError message={error || "Failed to load products"} onRetry={refetch} />
         </div>
       </div>
     );

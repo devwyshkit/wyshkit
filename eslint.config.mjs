@@ -14,9 +14,12 @@ const eslintConfig = [
     rules: {
       'react/no-unescaped-entities': 'off',
       '@next/next/no-img-element': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      'react-hooks/exhaustive-deps': 'off',
+      // Swiggy Dec 2025 pattern: Enable critical rules in development to catch bugs early
+      // Only disable in production if absolutely necessary
+      '@typescript-eslint/no-unused-vars': process.env.NODE_ENV === 'production' ? 'off' : 'warn',
+      '@typescript-eslint/no-explicit-any': process.env.NODE_ENV === 'production' ? 'off' : 'warn',
+      // CRITICAL: Enable exhaustive-deps to prevent infinite loops
+      'react-hooks/exhaustive-deps': process.env.NODE_ENV === 'production' ? 'off' : 'warn',
       'import/no-unresolved': 'error',
       'import/named': 'error',
       'import/default': 'error',

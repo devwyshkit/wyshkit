@@ -26,9 +26,46 @@ function LoginPageContent() {
   const [step, setStep] = useState<"phone" | "otp">("phone");
   
   useEffect(() => {
+    // Check if we have OAuth tokens in URL fragment (fragment-based flow)
+    // This happens when Supabase redirects with tokens in hash instead of code in query
+    // IMPORTANT: Check this FIRST, even if there's an error parameter
+    // Supabase may redirect to /login?error=oauth_failed#access_token=... when redirect URL doesn't match
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get("access_token");
+      
+      // If we have tokens in fragment, redirect to client-side callback handler
+      // This takes priority over error handling - tokens mean OAuth succeeded
+      if (accessToken) {
+        logger.info("[Login] Detected OAuth tokens in fragment, redirecting to callback handler", {
+          hasError: !!oauthError,
+          hasToken: !!accessToken,
+        });
+        const state = params.get("state");
+        
+        // Preserve the entire fragment when redirecting
+        // Build callback URL with state in query, fragment will be preserved by browser
+        const callbackUrl = state 
+          ? `/auth/callback?state=${encodeURIComponent(state)}`
+          : "/auth/callback";
+        
+        // Use window.location to preserve the hash fragment
+        // router.replace() might not preserve fragments correctly
+        // Append the hash to ensure tokens are passed to callback handler
+        const fullUrl = callbackUrl + window.location.hash;
+        logger.debug("[Login] Redirecting to callback", { url: callbackUrl, hasHash: !!window.location.hash });
+        window.location.href = fullUrl;
+        return;
+      }
+    }
+    
+    // Handle OAuth errors (but only if no tokens in fragment)
     if (oauthError) {
       const errorMessage = decodeURIComponent(oauthError);
+      logger.warn("[Login] OAuth error detected", { error: errorMessage });
       showError(errorMessage);
+      // Clear error from URL after showing it
       router.replace("/login", { scroll: false });
     }
   }, [oauthError, showError, router]);
@@ -38,6 +75,13 @@ function LoginPageContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [phoneError, setPhoneError] = useState("");
   const [otpError, setOtpError] = useState("");
+
+  // Debug: Log step changes
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      logger.info("[Login] Step changed", { step, isLoading, phone: phone.replace(/\d(?=\d{4})/g, "*") });
+    }
+  }, [step, isLoading, phone]);
 
   const validatePhone = (phoneNumber: string): boolean => {
     if (!phoneNumber || phoneNumber.length < 10) {
@@ -67,26 +111,160 @@ function LoginPageContent() {
 
     try {
       const phoneNumber = phone.startsWith("+") ? phone : `+91${phone}`;
-      const response = await fetch("/api/auth/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phoneNumber }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to send OTP");
+      
+      let response: Response;
+      try {
+        response = await fetch("/api/auth/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: phoneNumber }),
+        });
+      } catch (fetchError) {
+        // Handle network errors (connection refused, timeout, etc.)
+        const errorMessage = fetchError instanceof Error ? fetchError.message : String(fetchError);
+        const isDev = process.env.NODE_ENV === "development";
+        
+        if (
+          errorMessage.includes("Failed to fetch") ||
+          errorMessage.includes("ERR_CONNECTION_REFUSED") ||
+          errorMessage.includes("NetworkError") ||
+          errorMessage.includes("network")
+        ) {
+          const userMessage = isDev
+            ? "Server is not running. Please start the dev server with 'npm run dev'."
+            : "Unable to connect to server. Please check your internet connection and try again.";
+          
+          setPhoneError(userMessage);
+          showError(userMessage);
+          setIsLoading(false);
+          logger.error("[Login] Connection error", {
+            error: errorMessage,
+            hint: isDev ? "Start dev server with: npm run dev" : undefined,
+          });
+          return;
+        }
+        
+        // Re-throw other fetch errors
+        throw fetchError;
       }
 
-      success("OTP sent successfully");
-      setStep("otp");
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        // If JSON parsing fails, check if response is ok
+        if (response.ok) {
+          // Response is ok but not JSON - treat as success
+          logger.warn("[Login] OTP send response not JSON, but status is OK", {
+            status: response.status,
+            statusText: response.statusText,
+          });
+          success("OTP sent successfully");
+          setStep("otp");
+          setIsLoading(false);
+          return;
+        }
+        throw new Error(`Failed to parse response: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+      }
+
+      if (!response.ok) {
+        // Build user-friendly error message based on error code
+        const errorCode = data.code || "";
+        const errorMessage = data.error || "Failed to send OTP";
+        const isDev = process.env.NODE_ENV === "development";
+        
+        // Handle specific error codes with actionable messages
+        let userFriendlyMessage = errorMessage;
+        
+        if (errorCode === "SMS_NOT_CONFIGURED") {
+          userFriendlyMessage = "SMS service is not configured. Please configure Twilio in Supabase Dashboard.";
+          if (data.hint) {
+            userFriendlyMessage += ` ${data.hint}`;
+          }
+        } else if (errorCode === "RATE_LIMIT") {
+          userFriendlyMessage = "Too many requests. Please wait a moment and try again.";
+        } else if (errorCode === "INVALID_PHONE" || errorCode === "INVALID_PHONE_FORMAT") {
+          userFriendlyMessage = "Invalid phone number format. Please use international format (e.g., +919740803490).";
+        } else if (errorCode === "SMS_SEND_FAILED") {
+          // Enhanced error message for SMS send failures
+          userFriendlyMessage = data.error || "Failed to send SMS.";
+          if (data.hint) {
+            userFriendlyMessage += `\n\n${data.hint}`;
+          }
+          // Add actionable steps
+          userFriendlyMessage += "\n\nTroubleshooting steps:";
+          userFriendlyMessage += "\n1. Check Twilio account balance (Twilio Console → Billing)";
+          userFriendlyMessage += "\n2. Verify Twilio Verify Service is active (Twilio Console → Verify → Services)";
+          userFriendlyMessage += "\n3. Check Supabase Dashboard → Authentication → Providers → Phone configuration";
+          userFriendlyMessage += "\n4. Verify phone number format is correct (E.164: +919740803490)";
+        }
+        
+        // In development, add technical details
+        if (isDev) {
+          if (data.code) {
+            userFriendlyMessage += `\n\n[${data.code}]`;
+          }
+          if (data.details) {
+            const detailsStr = typeof data.details === "string" 
+              ? data.details 
+              : JSON.stringify(data.details, null, 2);
+            userFriendlyMessage += `\n\nDetails: ${detailsStr}`;
+          }
+          if (data.dashboardUrl) {
+            userFriendlyMessage += `\n\nDashboard: ${data.dashboardUrl}`;
+          }
+          
+          // Log full error for debugging
+          logger.error("[Login] OTP send failed", {
+            code: data.code,
+            error: data.error,
+            details: data.details,
+            fullResponse: data,
+            status: response.status,
+          });
+        }
+        
+        throw new Error(userFriendlyMessage);
+      }
+
+      // Success - check if data indicates success
+      // Always transition to OTP step if response is ok (status 200-299)
+      if (response.ok) {
+        // Clear any previous errors first
+        setPhoneError("");
+        
+        // Check for warnings about SMS provider
+        if (data.warning) {
+          // Don't show "OTP sent successfully" if there's a warning
+          // Instead show the warning message
+          showError(data.warning);
+          logger.warn("[Login] OTP request accepted but SMS may not be sent", { warning: data.warning });
+          // Still transition to OTP step so user can try entering OTP if they received it
+        } else {
+          // Show success message only if no warning
+          success("OTP sent successfully");
+        }
+        
+        // Change step to OTP
+        setStep("otp");
+        // Reset loading state
+        setIsLoading(false);
+        logger.info("[Login] Switched to OTP step", {
+          phone: phoneNumber.replace(/\d(?=\d{4})/g, "*"),
+          hasWarning: !!data.warning,
+        });
+      } else {
+        throw new Error(data.error || "Failed to send OTP");
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to send OTP";
       setPhoneError(errorMessage);
       showError(errorMessage);
-    } finally {
       setIsLoading(false);
+      logger.error("[Login] OTP send error", {
+        error: errorMessage,
+        stack: err instanceof Error ? err.stack : undefined,
+      });
     }
   };
 
@@ -110,7 +288,33 @@ function LoginPageContent() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Invalid OTP");
+        // Build detailed error message
+        const errorMessage = data.error || "Invalid OTP";
+        const isDev = process.env.NODE_ENV === "development";
+        
+        // In development, show error code and details
+        let fullErrorMessage = errorMessage;
+        if (isDev && data.code) {
+          fullErrorMessage += ` (Code: ${data.code})`;
+        }
+        if (isDev && data.details) {
+          const detailsStr = typeof data.details === "string" 
+            ? data.details 
+            : JSON.stringify(data.details, null, 2);
+          fullErrorMessage += `\n\nDetails: ${detailsStr}`;
+        }
+        
+        // Log full error for debugging
+        if (isDev) {
+          logger.error("[Login] OTP verify failed", {
+            code: data.code,
+            error: data.error,
+            details: data.details,
+            fullResponse: data,
+          });
+        }
+        
+        throw new Error(fullErrorMessage);
       }
 
       success("Login successful");
@@ -268,6 +472,9 @@ function LoginPageContent() {
 
       {step === "otp" && (
         <div className="space-y-4">
+          <div className="text-center text-sm text-muted-foreground mb-2">
+            Enter the 6-digit code sent to {phone.replace(/\d(?=\d{4})/g, "*")}
+          </div>
           <OtpInput
             value={otp}
             onChange={setOtp}

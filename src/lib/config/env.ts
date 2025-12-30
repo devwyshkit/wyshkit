@@ -73,7 +73,8 @@ const envSchema = z.object({
   TWILIO_PHONE_NUMBER: z.string().optional(),
   TWILIO_VERIFY_SERVICE_SID: z.string().optional(), // Twilio Verify Service SID for Supabase
   TWILIO_MESSAGE_SERVICE_SID: z.string().optional(), // Twilio Messaging Service SID
-  TWILIO_WHATSAPP_SERVICE_SID: z.string().optional(), // Twilio WhatsApp Service SID
+  TWILIO_WHATSAPP_NUMBER: z.string().optional(), // WhatsApp sender number (e.g., whatsapp:+14155238886)
+  TWILIO_WHATSAPP_CONTENT_SID: z.string().optional(), // Twilio WhatsApp Content Template SID (for message templates)
   TWILIO_API_KEY_SID: z.string().optional(), // Twilio API Key SID (for API access)
   
   // Email Provider (Resend - for transactional emails)
@@ -124,6 +125,11 @@ const parseEnv = () => {
       TWILIO_ACCOUNT_SID: normalizeEnv(process.env.TWILIO_ACCOUNT_SID),
       TWILIO_AUTH_TOKEN: normalizeEnv(process.env.TWILIO_AUTH_TOKEN),
       TWILIO_PHONE_NUMBER: normalizeEnv(process.env.TWILIO_PHONE_NUMBER),
+      TWILIO_VERIFY_SERVICE_SID: normalizeEnv(process.env.TWILIO_VERIFY_SERVICE_SID),
+      TWILIO_MESSAGE_SERVICE_SID: normalizeEnv(process.env.TWILIO_MESSAGE_SERVICE_SID),
+      TWILIO_WHATSAPP_NUMBER: normalizeEnv(process.env.TWILIO_WHATSAPP_NUMBER),
+      TWILIO_WHATSAPP_CONTENT_SID: normalizeEnv(process.env.TWILIO_WHATSAPP_CONTENT_SID),
+      TWILIO_API_KEY_SID: normalizeEnv(process.env.TWILIO_API_KEY_SID),
       RESEND_API_KEY: normalizeEnv(process.env.RESEND_API_KEY),
       NEXT_PUBLIC_SUPABASE_URL: normalizeEnv(process.env.NEXT_PUBLIC_SUPABASE_URL),
       NEXT_PUBLIC_SUPABASE_ANON_KEY: normalizeEnv(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
@@ -235,8 +241,10 @@ function getSafeDefaults(): z.infer<typeof envSchema> {
     NIMBUS_PASSWORD: normalizeEnv(process.env.NIMBUS_PASSWORD),
     SENTRY_DSN: normalizeEnv(process.env.SENTRY_DSN),
     TWILIO_PHONE_NUMBER: normalizeEnv(process.env.TWILIO_PHONE_NUMBER),
+    TWILIO_VERIFY_SERVICE_SID: normalizeEnv(process.env.TWILIO_VERIFY_SERVICE_SID),
     TWILIO_MESSAGE_SERVICE_SID: normalizeEnv(process.env.TWILIO_MESSAGE_SERVICE_SID),
-    TWILIO_WHATSAPP_SERVICE_SID: normalizeEnv(process.env.TWILIO_WHATSAPP_SERVICE_SID),
+    TWILIO_WHATSAPP_NUMBER: normalizeEnv(process.env.TWILIO_WHATSAPP_NUMBER),
+    TWILIO_WHATSAPP_CONTENT_SID: normalizeEnv(process.env.TWILIO_WHATSAPP_CONTENT_SID),
     TWILIO_API_KEY_SID: normalizeEnv(process.env.TWILIO_API_KEY_SID),
   } as z.infer<typeof envSchema>;
 }
@@ -269,8 +277,18 @@ function initializeEnv(): z.infer<typeof envSchema> {
 // Swiggy Dec 2025 pattern: SSR-safe Proxy pattern prevents module initialization errors
 export const env = new Proxy({} as z.infer<typeof envSchema>, {
   get(_target, prop) {
-    const instance = initializeEnv();
-    return instance[prop as keyof typeof instance];
+    try {
+      const instance = initializeEnv();
+      return instance[prop as keyof typeof instance];
+    } catch (error) {
+      // If initialization fails, return undefined for the property
+      // This prevents the Proxy from throwing and crashing the app
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.warn(`[Env Config] Failed to get property ${String(prop)}:`, error);
+      }
+      return undefined;
+    }
   },
 });
 

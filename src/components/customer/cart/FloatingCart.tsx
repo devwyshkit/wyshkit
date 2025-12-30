@@ -1,11 +1,13 @@
 "use client";
 
+import React from "react";
 import { useCart } from "@/hooks/useCart";
 import { usePathname } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
 
-export function FloatingCart() {
+// Swiggy Dec 2025 pattern: Memoize expensive components to prevent unnecessary re-renders
+export const FloatingCart = React.memo(function FloatingCart() {
   const { items, totalPrice } = useCart();
   const pathname = usePathname();
 
@@ -32,4 +34,4 @@ export function FloatingCart() {
       </Link>
     </div>
   );
-}
+});

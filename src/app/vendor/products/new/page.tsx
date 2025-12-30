@@ -24,6 +24,7 @@ import { Switch } from "@/components/ui/switch";
 import { FileUploader } from "@/components/vendor/FileUploader";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api/client";
+import { appConfig } from "@/lib/config/app";
 
 const CATEGORIES = ["Cakes", "Tech Gadgets", "Home Decor", "Fashion", "Stationery", "Flowers"];
 const SLA_OPTIONS = [
@@ -162,10 +163,15 @@ export default function NewProductPage() {
               </div>
               <div className="space-y-2">
                 <Label>Product Images* (Min 1, Max 5)</Label>
+                <p className="text-xs text-muted-foreground">
+                  Max {appConfig.uploads.productImage.maxSize / (1024 * 1024)}MB per image. Allowed: {appConfig.uploads.productImage.allowedExtensions.join(', ')}
+                </p>
                 <div className="grid grid-cols-2 gap-4">
                   <FileUploader 
                     label="Main Photo" 
-                    onUpload={url => setFormData(prev => ({ ...prev, image: url, images: [url, ...prev.images] }))} 
+                    onUpload={url => setFormData(prev => ({ ...prev, image: url, images: [url, ...prev.images] }))}
+                    maxSize={appConfig.uploads.productImage.maxSize}
+                    accept={{ "image/*": appConfig.uploads.productImage.allowedExtensions }}
                   />
                   {formData.image && (
                     <div className="relative aspect-square rounded-xl overflow-hidden border">

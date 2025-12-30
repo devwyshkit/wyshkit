@@ -3,6 +3,8 @@
  * Provides centralized API communication with retry logic and error handling
  */
 
+import { logger } from "@/lib/utils/logger";
+
 type RequestConfig = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   headers?: Record<string, string>;
@@ -211,12 +213,7 @@ class ApiClient {
           // This prevents unwanted redirects in API client
           logger.warn("[API Client] 401 Unauthorized - component should handle redirect");
         }
-        // Suppress 405 errors for Supabase Auth endpoints - they're harmless
-        // Supabase uses cookies, so these errors don't affect authentication
-        if (error.status === 405 && endpoint.includes("/api/auth")) {
-          // Silently ignore - Supabase uses cookies for authentication
-          return {} as T;
-        }
+        // Swiggy Dec 2025 pattern: Don't suppress errors - let them propagate for proper handling
         throw error;
       }
 

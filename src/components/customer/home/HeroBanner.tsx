@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,8 @@ interface HeroBannerProps {
   autoRotateInterval?: number; // in milliseconds
 }
 
-export function HeroBanner({ slides, autoRotateInterval = 5000 }: HeroBannerProps) {
+// Swiggy Dec 2025 pattern: Memoize expensive components to prevent unnecessary re-renders
+export const HeroBanner = React.memo(function HeroBanner({ slides, autoRotateInterval = 5000 }: HeroBannerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -92,5 +93,5 @@ export function HeroBanner({ slides, autoRotateInterval = 5000 }: HeroBannerProp
       )}
     </div>
   );
-}
+});
 

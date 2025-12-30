@@ -45,6 +45,25 @@ export const appConfig = {
     defaultLimit: 20,
     maxLimit: 100,
   },
+
+  // File upload limits and validation
+  uploads: {
+    productImage: {
+      maxSize: 5 * 1024 * 1024, // 5MB
+      allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+      allowedExtensions: ['.jpg', '.jpeg', '.png', '.webp'],
+    },
+    mockupImage: {
+      maxSize: 10 * 1024 * 1024, // 10MB (higher for mockups)
+      allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+      allowedExtensions: ['.jpg', '.jpeg', '.png', '.webp'],
+    },
+    vendorDocument: {
+      maxSize: 5 * 1024 * 1024, // 5MB
+      allowedTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+      allowedExtensions: ['.jpg', '.jpeg', '.png', '.pdf'],
+    },
+  },
 } as const;
 
 export type AppConfig = typeof appConfig;

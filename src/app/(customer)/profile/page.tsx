@@ -28,15 +28,23 @@ function ProfilePageContent() {
     setIsLoggingOut(true);
     try {
       const supabase = getSupabaseClient();
-      if (supabase) {
-        await supabase.auth.signOut();
-        logger.info("[Profile] User logged out successfully");
-        toast.success("Logged out", "You have been logged out successfully.");
-        router.push("/login");
-        router.refresh();
-      } else {
+      if (!supabase) {
         throw new Error("Supabase client not available");
       }
+      
+      // Swiggy Dec 2025 pattern: Use Supabase Auth directly, no reinvention
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
+      
+      logger.info("[Profile] User logged out successfully");
+      toast.success("Logged out", "You have been logged out successfully.");
+      
+      // Redirect to login and refresh
+      router.push("/login");
+      router.refresh();
     } catch (error) {
       logger.error("[Profile] Logout failed", error);
       toast.error("Logout failed", "Unable to log out. Please try again.");

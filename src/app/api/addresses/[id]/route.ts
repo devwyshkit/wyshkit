@@ -3,7 +3,7 @@ import { updateAddressSchema } from "@/lib/validations/addresses";
 import { logger } from "@/lib/utils/logger";
 import { requireAuth } from "@/lib/auth/server";
 import { isAuthError, isErrorWithStatus, formatApiError } from "@/lib/types/api-errors";
-import { getSupabaseServiceClient } from "@/lib/supabase/client";
+import { createSupabaseServerClientWithRequest } from "@/lib/supabase/client";
 
 export async function GET(
   request: Request,
@@ -14,14 +14,16 @@ export async function GET(
     const userId = user.id;
     const { id } = await params;
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use regular client for authenticated requests - RLS handles access control
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       return NextResponse.json({ error: "Database not available" }, { status: 503 });
     }
 
+    // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
     const { data: address, error } = await supabase
       .from("addresses")
-      .select("*")
+      .select("id, user_id, recipient_name, phone, address, city, pincode, lat, lng, label, is_default, created_at, updated_at")
       .eq("id", id)
       .eq("user_id", userId)
       .single();
@@ -41,6 +43,7 @@ export async function GET(
         pincode: address.pincode,
         lat: address.lat ? parseFloat(address.lat) : undefined,
         lng: address.lng ? parseFloat(address.lng) : undefined,
+        label: (address.label as 'Home' | 'Work' | 'Other') || 'Home',
         isDefault: address.is_default,
         createdAt: address.created_at,
         updatedAt: address.updated_at,
@@ -78,7 +81,8 @@ export async function PATCH(
 
     const data = validationResult.data;
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use regular client for authenticated requests - RLS handles access control
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       return NextResponse.json({ error: "Database not available" }, { status: 503 });
     }
@@ -109,6 +113,7 @@ export async function PATCH(
     if (data.pincode) updateData.pincode = data.pincode;
     if (data.lat !== undefined) updateData.lat = data.lat?.toString();
     if (data.lng !== undefined) updateData.lng = data.lng?.toString();
+    if (data.label) updateData.label = data.label;
     if (data.isDefault !== undefined) updateData.is_default = data.isDefault;
     updateData.updated_at = new Date().toISOString();
 
@@ -134,6 +139,7 @@ export async function PATCH(
         pincode: updated.pincode,
         lat: updated.lat ? parseFloat(updated.lat) : undefined,
         lng: updated.lng ? parseFloat(updated.lng) : undefined,
+        label: (updated.label as 'Home' | 'Work' | 'Other') || 'Home',
         isDefault: updated.is_default,
         createdAt: updated.created_at,
         updatedAt: updated.updated_at,
@@ -158,7 +164,8 @@ export async function DELETE(
     const userId = user.id;
     const { id } = await params;
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use regular client for authenticated requests - RLS handles access control
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       return NextResponse.json({ error: "Database not available" }, { status: 503 });
     }

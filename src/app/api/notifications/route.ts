@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
 import { requireAuth } from "@/lib/auth/server";
-import { getSupabaseServiceClient } from "@/lib/supabase/client";
+import { createSupabaseServerClientWithRequest, getSupabaseServiceClient } from "@/lib/supabase/client";
 
 const createNotificationSchema = z.object({
   userId: z.string().uuid(),
@@ -21,14 +21,16 @@ export async function GET(request: Request) {
     const unreadOnly = searchParams.get("unreadOnly") === "true";
     const limit = parseInt(searchParams.get("limit") || "50", 10);
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use regular client for authenticated requests - RLS handles access control
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       return NextResponse.json({ error: "Database not available", notifications: [] }, { status: 503 });
     }
 
+    // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
     let query = supabase
       .from("notifications")
-      .select("*")
+      .select("id, user_id, type, title, message, read, data, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(limit);
@@ -60,10 +62,21 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    // Swiggy Dec 2025 pattern: Require auth for notification creation (system or user)
+    const user = await requireAuth(request);
+    
     const body = await request.json();
     const { userId, type, title, message, data } = createNotificationSchema.parse(body);
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use service role for system notifications (admin creating for other users)
+    // Use authenticated client if user is creating notification for themselves
+    let supabase;
+    if (user.role === "admin" || userId !== user.id) {
+      supabase = getSupabaseServiceClient();
+    } else {
+      supabase = await createSupabaseServerClientWithRequest(request);
+    }
+    
     if (!supabase) {
       return NextResponse.json({ error: "Database not available" }, { status: 503 });
     }
@@ -119,7 +132,8 @@ export async function PATCH(request: Request) {
     const user = await requireAuth(request);
     const userId = user.id;
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use regular client for authenticated requests - RLS handles access control
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       return NextResponse.json({ error: "Database not available" }, { status: 503 });
     }

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { productQuerySchema } from "@/lib/validations/products";
 import { logger } from "@/lib/utils/logger";
 import { normalizeQueryParam } from "@/lib/utils/api-helpers";
-import { getSupabaseServiceClient } from "@/lib/supabase/client";
+import { createSupabaseServerClientWithRequest } from "@/lib/supabase/client";
 
 export async function GET(request: Request) {
   logger.debug("[API /products] Request received");
@@ -29,7 +29,8 @@ export async function GET(request: Request) {
 
     const { category, vendorId, limit, offset, search, sortBy, sortOrder } = validationResult.data;
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use regular client for public data - RLS handles access control
+    const supabase = await createSupabaseServerClientWithRequest(request);
 
     if (!supabase) {
       return NextResponse.json(
@@ -38,18 +39,25 @@ export async function GET(request: Request) {
       );
     }
 
-    let query = supabase.from("products").select("*").eq("is_active", true);
+    logger.debug("[API /products] Supabase client initialized, building query", { category, vendorId, search, sortBy });
+
+    // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
+    // RLS policy is source of truth - it already filters by is_active and vendor status
+    let query = supabase.from("products").select("id, vendor_id, name, description, price, image, images, category, is_personalizable, variants, add_ons, specs, materials, care_instructions");
 
     if (category) {
       query = query.eq("category", category);
+      logger.debug("[API /products] Added category filter", { category });
     }
 
     if (vendorId) {
       query = query.eq("vendor_id", vendorId);
+      logger.debug("[API /products] Added vendorId filter", { vendorId });
     }
 
     if (search) {
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+      logger.debug("[API /products] Added search filter", { search });
     }
 
     const orderColumn = sortBy === "price" ? "price" : sortBy === "name" ? "name" : "created_at";
@@ -58,15 +66,29 @@ export async function GET(request: Request) {
 
     query = query.range(offset || 0, (offset || 0) + (limit || 50) - 1);
 
+    logger.debug("[API /products] Executing query");
     const { data: dbProducts, error } = await query;
 
     if (error) {
-      logger.error("[API /products] Supabase query failed", error);
+      // Swiggy Dec 2025 pattern: Detailed error logging for debugging RLS issues
+      logger.error("[API /products] Supabase query failed", {
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        isRLSError: error.code === '42501' || error.message?.includes('permission denied'),
+        query: { category, vendorId, search, sortBy, sortOrder },
+      });
       return NextResponse.json(
         { error: "Unable to load products", code: "PRODUCTS_FETCH_FAILED", products: [] },
         { status: 500 }
       );
     }
+
+    logger.debug("[API /products] Query successful", { 
+      productCount: dbProducts?.length || 0,
+      sampleProducts: dbProducts?.slice(0, 3).map(p => ({ id: p.id, name: p.name, vendor_id: p.vendor_id }))
+    });
 
     const formattedProducts = (dbProducts || []).map((p) => ({
       id: p.id,
@@ -89,9 +111,20 @@ export async function GET(request: Request) {
     logger.info("[API /products] Returning", formattedProducts.length, "products");
     return NextResponse.json({ products: formattedProducts });
   } catch (error) {
-    logger.error("[API /products] Error", error);
+    logger.error("[API /products] Error", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    
     return NextResponse.json(
-      { error: "Unable to load products", code: "PRODUCTS_FETCH_FAILED", products: [] },
+      { 
+        error: "Unable to load products. Please try again.", 
+        code: "PRODUCTS_FETCH_FAILED", 
+        products: [],
+        ...(process.env.NODE_ENV === "development" && { 
+          details: error instanceof Error ? error.message : String(error) 
+        }),
+      },
       { status: 500 }
     );
   }

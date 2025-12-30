@@ -6,6 +6,8 @@ import { Upload, X, FileText, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { logger } from "@/lib/utils/logger";
+import { appConfig } from "@/lib/config/app";
 
 interface FileUploaderProps {
   onUpload: (url: string) => void;
@@ -16,9 +18,12 @@ interface FileUploaderProps {
 
 export function FileUploader({ 
   onUpload, 
-  accept = { "image/*": [".jpeg", ".png", ".jpg"], "application/pdf": [".pdf"] },
+  accept = { 
+    "image/*": appConfig.uploads.vendorDocument.allowedExtensions.filter(ext => ext.startsWith('.') && ['jpg', 'jpeg', 'png'].includes(ext.slice(1))),
+    "application/pdf": [".pdf"]
+  },
   label,
-  maxSize = 5 * 1024 * 1024 // 5MB
+  maxSize = appConfig.uploads.vendorDocument.maxSize
 }: FileUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
@@ -28,7 +33,21 @@ export function FileUploader({
     if (!file) return;
 
     if (file.size > maxSize) {
-      toast.error("File size too large. Max 5MB allowed.");
+      toast.error("File size too large", `Maximum size is ${(maxSize / (1024 * 1024)).toFixed(0)}MB`);
+      return;
+    }
+
+    // Validate file type
+    const fileExt = file.name.split(".").pop()?.toLowerCase();
+    const fileType = file.type;
+    const allowedTypes = appConfig.uploads.vendorDocument.allowedTypes;
+    const allowedExtensions = appConfig.uploads.vendorDocument.allowedExtensions;
+    
+    const isValidType = allowedTypes.includes(fileType) || 
+                       (fileExt && allowedExtensions.some(ext => ext.toLowerCase() === `.${fileExt}`));
+    
+    if (!isValidType) {
+      toast.error("Invalid file type", `Only ${allowedExtensions.join(', ')} files are allowed`);
       return;
     }
 
@@ -55,7 +74,7 @@ export function FileUploader({
       onUpload(publicUrl);
       toast.success("File uploaded successfully");
     } catch (error) {
-      console.error("Upload error:", error);
+      logger.error("[FileUploader] Upload error", error);
       toast.error("Failed to upload file");
     } finally {
       setIsUploading(false);

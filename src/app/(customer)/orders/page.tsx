@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useOrders } from "@/hooks/api/useOrders";
-import { useVendor } from "@/hooks/api/useVendor";
 import { useOrderUpdates } from "@/hooks/realtime/useOrderUpdates";
 import { OrderListSkeleton } from "@/components/skeletons/OrderSkeleton";
 import { EmptyOrders } from "@/components/empty/EmptyOrders";
@@ -19,6 +18,7 @@ import { Loader2 } from "lucide-react";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
+import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 type OrderStatus = "awaiting_details" | "personalizing" | "mockup_ready" | "crafting" | "shipped" | "delivered";
 
@@ -52,15 +52,21 @@ function OrdersPageContent() {
     } | null;
   } | null>(null);
 
-  // Track which vendor we're fetching
-  const [fetchingVendorId, setFetchingVendorId] = useState<string | null>(null);
-  const activeVendorId = activeOrder?.vendor?.id || null;
-  const { vendor: fetchedVendor, loading: vendorLoading } = useVendor(activeVendorId);
+  // Swiggy Dec 2025 pattern: Vendor data comes from joined query, no separate fetch needed
 
   // Initialize from orders if available
+  // Swiggy Dec 2025 pattern: Use stable reference (first order ID) instead of entire orders array
+  const firstOrderIdRef = useRef<string | null>(null);
+  
   useEffect(() => {
     if (Array.isArray(orders) && orders.length > 0 && !activeOrder) {
       const firstOrder = orders[0];
+      const firstOrderId = firstOrder?.id;
+      
+      // Only initialize once per order ID - prevent loops
+      if (!firstOrderId || firstOrderIdRef.current === firstOrderId) {
+        return;
+      }
       
       // Only set activeOrder if we have essential data
       if (!firstOrder.deliveryAddress) {
@@ -76,15 +82,19 @@ function OrdersPageContent() {
         return;
       }
 
-      // Only set vendor name if it exists, otherwise we'll fetch it
-      const vendorName = firstOrder.vendorName || null;
+      // Use vendor data from joined query (eliminates N+1 problem)
+      const vendorData = firstOrder.vendor || (firstOrder.vendorName ? {
+        id: firstOrder.vendorId,
+        name: firstOrder.vendorName,
+        image: ""
+      } : null);
       
       setActiveOrder({
         id: firstOrder.id,
-        vendor: firstOrder.vendorId ? {
-          id: firstOrder.vendorId,
-          name: vendorName || "",
-          image: ""
+        vendor: vendorData ? {
+          id: vendorData.id,
+          name: vendorData.name,
+          image: vendorData.image || ""
         } : null,
         items: (Array.isArray(firstOrder.items) ? firstOrder.items : []).map(item => ({
           id: item.productId,
@@ -99,27 +109,17 @@ function OrdersPageContent() {
         deliveryAddress: deliveryAddr
       });
 
-      // If vendor name is missing, fetch vendor data
-      if (firstOrder.vendorId && !vendorName) {
-        setFetchingVendorId(firstOrder.vendorId);
-      }
+      // Track that we've initialized this order
+      firstOrderIdRef.current = firstOrderId;
     }
-  }, [orders, activeOrder]);
-
-  // Update vendor data when fetched
-  useEffect(() => {
-    if (fetchedVendor && activeOrder && activeOrder.vendor?.id === fetchedVendor.id) {
-      setActiveOrder(prev => prev ? {
-        ...prev,
-        vendor: {
-          id: fetchedVendor.id,
-          name: fetchedVendor.name,
-          image: fetchedVendor.image || ""
-        }
-      } : null);
-      setFetchingVendorId(null);
+    
+    // Reset ref if orders become empty
+    if (!orders || orders.length === 0) {
+      firstOrderIdRef.current = null;
     }
-  }, [fetchedVendor, activeOrder]);
+    // Only depend on ordersLoading - runs once when orders finish loading
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ordersLoading]);
 
   // Subscribe to real-time updates for active order
   const { orderUpdate, isConnected } = useOrderUpdates(activeOrder?.id || null);
@@ -156,34 +156,75 @@ function OrdersPageContent() {
   }, [activeOrder?.status]);
 
   const handleApproveAll = async () => {
+    if (!activeOrder) return;
+    
     setIsApproving(true);
     try {
-      // TODO: Integrate with actual API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Swiggy Dec 2025 pattern: Use actual API endpoint for order status updates
+      const response = await fetch(`/api/orders/${activeOrder.id}/mockup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          approved: true,
+          productId: null, // Approve all products
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to approve mockups");
+      }
+
+      const result = await response.json();
       
       setActiveOrder(prev => prev ? { ...prev, status: "crafting" as OrderStatus } : null);
       setIsMockupSheetOpen(false);
       toast.success("Mockups approved!", "Your order is now being crafted");
       
-      setTimeout(() => {
-        setActiveOrder(prev => prev ? { ...prev, status: "shipped" as OrderStatus } : null);
-      }, 4000);
+      // Refetch orders to get updated status
+      refetch();
     } catch (error) {
-      toast.error("Failed to approve mockups", "Please try again");
+      const errorMessage = error instanceof Error ? error.message : "Failed to approve mockups";
+      toast.error("Failed to approve mockups", errorMessage);
     } finally {
       setIsApproving(false);
     }
   };
 
   const handleDetailsSubmit = async () => {
+    if (!activeOrder) return;
+    
     setIsSubmittingDetails(true);
     try {
-      // TODO: Integrate with actual API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Swiggy Dec 2025 pattern: Use actual API endpoint for customization submission
+      const customizationsArray = Object.entries(customizations).map(([productId, details]) => ({
+        productId,
+        text: details.text || "",
+        giftMessage: details.giftMessage || "",
+        photo: null, // Photo upload would be handled separately
+      }));
+
+      const response = await fetch(`/api/orders/${activeOrder.id}/customize`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customizations: customizationsArray,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to submit customization details");
+      }
+
+      const result = await response.json();
       
       setActiveOrder(prev => prev ? { ...prev, status: "personalizing" as OrderStatus } : null);
       setIsDetailsSheetOpen(false);
-      toast.success("Customization details submitted!", "Vendor will create mockups soon");
+      toast.success("Details submitted!", "Your order is now being personalized");
+      
+      // Refetch orders to get updated status
+      refetch();
     } catch (error) {
       toast.error("Failed to submit details", "Please try again");
     } finally {
@@ -343,12 +384,7 @@ function OrdersPageContent() {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              {vendorLoading || fetchingVendorId ? (
-                <div className="space-y-1.5">
-                  <div className="h-4 bg-muted rounded animate-pulse w-24" />
-                  <div className="h-3 bg-muted rounded animate-pulse w-20" />
-                </div>
-              ) : activeOrder.vendor && activeOrder.vendor.name ? (
+              {activeOrder.vendor && activeOrder.vendor.name ? (
                 <>
                   <h3 className="font-semibold text-base">{activeOrder.vendor.name || "Unknown Vendor"}</h3>
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -450,6 +486,8 @@ function OrdersPageContent() {
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/50 z-[100]" />
           <Drawer.Content className="bg-background flex flex-col rounded-t-2xl h-[85vh] fixed bottom-0 left-0 right-0 z-[101] outline-none max-w-xl mx-auto">
+            <DialogTitle className="sr-only">Customization Details</DialogTitle>
+            <DialogDescription className="sr-only">Enter customization details for your order items</DialogDescription>
             <div className="mx-auto w-10 h-1 rounded-full bg-muted mt-3" />
             <div className="p-4 flex-1 overflow-y-auto">
               <div className="mb-5">
@@ -540,6 +578,8 @@ function OrdersPageContent() {
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/50 z-[100]" />
           <Drawer.Content className="bg-background flex flex-col rounded-t-2xl h-[85vh] fixed bottom-0 left-0 right-0 z-[101] outline-none max-w-xl mx-auto">
+            <DialogTitle className="sr-only">Review Mockups</DialogTitle>
+            <DialogDescription className="sr-only">Review and approve mockups before crafting begins</DialogDescription>
             <div className="mx-auto w-10 h-1 rounded-full bg-muted mt-3" />
             <div className="p-4 flex-1 overflow-y-auto">
               <div className="mb-5">

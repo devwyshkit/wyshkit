@@ -12,6 +12,7 @@ export const addressSchema = z.object({
   pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6 digits"),
   lat: z.number().optional(),
   lng: z.number().optional(),
+  label: z.enum(['Home', 'Work', 'Other']).default('Home'),
   isDefault: z.boolean().default(false),
 });
 

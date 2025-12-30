@@ -30,7 +30,8 @@ export async function GET(request: Request) {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    // Fetch stats in parallel
+    // Swiggy Dec 2025 pattern: Fetch stats in parallel with optimized field selection
+    // For count-only queries, select minimal field (id) instead of all fields
     const [
       { count: totalOrders },
       { count: todayOrders },
@@ -40,10 +41,10 @@ export async function GET(request: Request) {
       { data: dailyOrdersData },
       { data: topVendorsData }
     ] = await Promise.all([
-      supabase.from("orders").select("*", { count: "exact", head: true }),
-      supabase.from("orders").select("*", { count: "exact", head: true }).gte("created_at", today.toISOString()),
-      supabase.from("vendors").select("*", { count: "exact", head: true }),
-      supabase.from("vendors").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      supabase.from("orders").select("id", { count: "exact", head: true }),
+      supabase.from("orders").select("id", { count: "exact", head: true }).gte("created_at", today.toISOString()),
+      supabase.from("vendors").select("id", { count: "exact", head: true }),
+      supabase.from("vendors").select("id", { count: "exact", head: true }).eq("status", "pending"),
       supabase.from("orders").select("total").eq("payment_status", "completed"),
       supabase.from("orders").select("created_at").gte("created_at", sevenDaysAgo.toISOString()),
       supabase.from("vendors").select("id, name").eq("status", "approved").limit(5)
@@ -79,6 +80,44 @@ export async function GET(request: Request) {
 
     topVendors.sort((a, b) => b.revenue - a.revenue);
 
+    // Swiggy Dec 2025 pattern: Calculate revenue growth from historical data
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const sixtyDaysAgo = new Date();
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+    const [currentPeriodData, previousPeriodData] = await Promise.all([
+      supabase
+        .from("orders")
+        .select("total")
+        .eq("payment_status", "completed")
+        .gte("created_at", thirtyDaysAgo.toISOString()),
+      supabase
+        .from("orders")
+        .select("total")
+        .eq("payment_status", "completed")
+        .gte("created_at", sixtyDaysAgo.toISOString())
+        .lt("created_at", thirtyDaysAgo.toISOString()),
+    ]);
+
+    const currentPeriodRevenue = (currentPeriodData.data || []).reduce(
+      (sum, order) => sum + parseFloat(order.total || "0"),
+      0
+    );
+    const previousPeriodRevenue = (previousPeriodData.data || []).reduce(
+      (sum, order) => sum + parseFloat(order.total || "0"),
+      0
+    );
+
+    const revenueGrowth = previousPeriodRevenue > 0
+      ? Math.round(((currentPeriodRevenue - previousPeriodRevenue) / previousPeriodRevenue) * 100 * 10) / 10
+      : 0;
+
+    // Swiggy Dec 2025 pattern: Calculate top categories from actual order items
+    // Category tracking requires order items to include category field
+    // For now, return empty array - will be implemented when order items schema includes category
+    const topCategories: Array<{ name: string; revenue: number; percentage: number }> = [];
+
     logger.info("[Admin Dashboard] Stats fetched successfully");
 
     return NextResponse.json({
@@ -87,19 +126,17 @@ export async function GET(request: Request) {
       totalRevenue: Math.round(totalRevenue),
       pendingApprovals: pendingApprovals || 0,
       todayOrders: todayOrders || 0,
-      revenueGrowth: 15, // Mocked growth for UI, should be calculated from historical data in real app
+      revenueGrowth,
       dailyOrders,
-      topCategories: [
-        { name: "Cakes", revenue: Math.round(totalRevenue * 0.26), percentage: 26 },
-        { name: "Tech", revenue: Math.round(totalRevenue * 0.22), percentage: 22 },
-        { name: "Home Decor", revenue: Math.round(totalRevenue * 0.15), percentage: 15 },
-      ],
+      topCategories,
       topVendors: topVendors.slice(0, 3),
       operationalMetrics: {
-        mockupSlaCompliance: 89,
-        onTimeDelivery: 92,
-        customerSatisfaction: 4.6,
-        repeatOrderRate: 28,
+        // Swiggy Dec 2025 pattern: These metrics require tracking tables that don't exist yet
+        // Return null/0 values until proper tracking is implemented
+        mockupSlaCompliance: null,
+        onTimeDelivery: null,
+        customerSatisfaction: null,
+        repeatOrderRate: null,
       },
     });
   } catch (error) {

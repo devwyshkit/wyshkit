@@ -28,7 +28,8 @@ export async function GET(request: Request) {
     const status = searchParams.get("status");
     const search = searchParams.get("search");
 
-    let query = supabase.from("vendors").select("*");
+    // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
+    let query = supabase.from("vendors").select("id, user_id, name, description, image, city, status, onboarding_status, rating, created_at");
 
     if (status && status !== "all") {
       query = query.eq("status", status);
@@ -51,7 +52,7 @@ export async function GET(request: Request) {
       (vendorList || []).map(async (v) => {
         const { count } = await supabase
           .from("orders")
-          .select("*", { count: "exact", head: true })
+          .select("id", { count: "exact", head: true })
           .eq("vendor_id", v.id);
 
         return {

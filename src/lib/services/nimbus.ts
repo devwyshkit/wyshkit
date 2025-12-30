@@ -1,5 +1,12 @@
-// Nimbus delivery API integration
-
+/**
+ * Nimbus delivery API integration
+ * 
+ * NOTE: This service is prepared but not currently integrated.
+ * Delivery partner integration is planned for future implementation.
+ * 
+ * Swiggy Dec 2025 pattern: Keep code simple - only integrate when needed.
+ * Currently, orders use manual delivery coordination.
+ */
 import { env } from "@/lib/config/env";
 import { logger } from "@/lib/utils/logger";
 import { appConfig } from "@/lib/config/app";
@@ -211,4 +218,12 @@ export class NimbusService {
 
 // Export singleton instance
 export const nimbusService = new NimbusService();
+
+/**
+ * Get Nimbus service instance
+ * Swiggy Dec 2025 pattern: Consistent helper function pattern
+ */
+export function getNimbusService(): NimbusService {
+  return nimbusService;
+}
 

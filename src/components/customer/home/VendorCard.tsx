@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
@@ -14,9 +15,11 @@ interface VendorCardProps {
   city?: string | null;
   isOnline?: boolean;
   className?: string;
+  priority?: boolean; // For LCP optimization - prioritize first few cards
 }
 
-export function VendorCard({
+// Swiggy Dec 2025 pattern: Memoize expensive components to prevent unnecessary re-renders
+export const VendorCard = React.memo(function VendorCard({
   id,
   name,
   image,
@@ -25,6 +28,7 @@ export function VendorCard({
   city,
   isOnline = true,
   className,
+  priority = false,
 }: VendorCardProps) {
   const ratingNum = typeof rating === "string" ? parseFloat(rating) : rating;
   const displayRating = ratingNum && ratingNum > 0 ? ratingNum.toFixed(1) : null;
@@ -38,6 +42,7 @@ export function VendorCard({
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className="object-cover transition-transform duration-300 group-hover:scale-105"
+          priority={priority}
         />
         
         {!isOnline && (
@@ -66,4 +71,4 @@ export function VendorCard({
       </div>
     </Link>
   );
-}
+});

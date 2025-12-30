@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/utils/logger";
 import { requireAuth } from "@/lib/auth/server";
-import { getSupabaseServiceClient } from "@/lib/supabase/client";
+import { createSupabaseServerClientWithRequest } from "@/lib/supabase/client";
 
 /**
  * Vendor Dashboard API
- * Swiggy Dec 2025 pattern: No dev fallbacks, direct database queries, strict auth.
+ * Swiggy Dec 2025 pattern: Use RLS for vendor-specific data access
  */
 export async function GET(request: Request) {
   try {
@@ -18,15 +18,17 @@ export async function GET(request: Request) {
       );
     }
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use RLS client for vendor-specific data
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       logger.error("[Vendor Dashboard] Supabase client not available");
       return NextResponse.json({ error: "Service temporarily unavailable" }, { status: 503 });
     }
 
+    // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
     const { data: vendors, error: vendorError } = await supabase
       .from("vendors")
-      .select("*")
+      .select("id, name, rating, onboarding_status")
       .eq("user_id", user.id)
       .limit(1);
     
@@ -68,13 +70,13 @@ export async function GET(request: Request) {
       { data: pendingPayouts },
       { count: ordersThisMonth }
     ] = await Promise.all([
-      supabase.from("orders").select("*", { count: "exact", head: true }).eq("vendor_id", vendor.id).gte("created_at", today.toISOString()),
-      supabase.from("orders").select("*", { count: "exact", head: true }).eq("vendor_id", vendor.id).in("status", ["personalizing", "mockup_ready"]),
-      supabase.from("orders").select("*", { count: "exact", head: true }).eq("vendor_id", vendor.id).eq("status", "pending"),
+      supabase.from("orders").select("id", { count: "exact", head: true }).eq("vendor_id", vendor.id).gte("created_at", today.toISOString()),
+      supabase.from("orders").select("id", { count: "exact", head: true }).eq("vendor_id", vendor.id).in("status", ["personalizing", "mockup_ready"]),
+      supabase.from("orders").select("id", { count: "exact", head: true }).eq("vendor_id", vendor.id).eq("status", "pending"),
       supabase.from("orders").select("id, order_number, status, total").eq("vendor_id", vendor.id).not("status", "in", '("delivered","cancelled","pending")').order("created_at", { ascending: false }).limit(5),
       supabase.from("orders").select("vendor_amount").eq("vendor_id", vendor.id).eq("payment_status", "completed"),
       supabase.from("orders").select("vendor_amount").eq("vendor_id", vendor.id).eq("payment_status", "completed").is("delivered_at", null),
-      supabase.from("orders").select("*", { count: "exact", head: true }).eq("vendor_id", vendor.id).gte("created_at", thisMonth.toISOString())
+      supabase.from("orders").select("id", { count: "exact", head: true }).eq("vendor_id", vendor.id).gte("created_at", thisMonth.toISOString())
     ]);
 
     const totalEarnings = (completedOrders || []).reduce(

@@ -1,9 +1,25 @@
 /**
  * Google Places API integration
  * Swiggy-style location and address autocomplete
+ * Swiggy Dec 2025 pattern: Session tokens for billing optimization, no manual parsing
  */
 
 import { logger } from "@/lib/utils/logger";
+
+/**
+ * Generate a session token for Google Places API
+ * Session tokens allow Google to group related requests and optimize billing
+ * Swiggy Dec 2025 pattern: Use session tokens for cost optimization
+ */
+export function generateSessionToken(): string {
+  // Generate UUID v4 for session token
+  // Format: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 export interface PlacePrediction {
   placeId: string;
@@ -62,9 +78,34 @@ export async function searchPlaces(
     const response = await fetch(url.toString());
     const data = await response.json();
 
-    if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
-      logger.error("[Google Places] Autocomplete error", data);
+    // Handle specific Google Places API errors
+    if (data.status === "ZERO_RESULTS") {
       return [];
+    }
+    
+    if (data.status === "INVALID_REQUEST") {
+      logger.error("[Google Places] Invalid request", data);
+      throw new Error("Invalid search query. Please try again.");
+    }
+    
+    if (data.status === "OVER_QUERY_LIMIT") {
+      logger.error("[Google Places] Over query limit", data);
+      throw new Error("Too many requests. Please try again later.");
+    }
+    
+    if (data.status === "REQUEST_DENIED") {
+      logger.error("[Google Places] Request denied", data);
+      throw new Error("API configuration issue. Please contact support.");
+    }
+    
+    if (data.status === "UNKNOWN_ERROR") {
+      logger.error("[Google Places] Unknown error", data);
+      throw new Error("Service temporarily unavailable. Please try again.");
+    }
+    
+    if (data.status !== "OK") {
+      logger.error("[Google Places] Autocomplete error", data);
+      throw new Error("Failed to search addresses. Please try again.");
     }
 
     interface GooglePlacePrediction {
@@ -83,8 +124,12 @@ export async function searchPlaces(
       secondaryText: pred.structured_formatting?.secondary_text || "",
     }));
   } catch (error) {
+    // Re-throw if it's already a user-friendly error
+    if (error instanceof Error && error.message.includes("Invalid") || error.message.includes("Too many") || error.message.includes("API") || error.message.includes("Service")) {
+      throw error;
+    }
     logger.error("[Google Places] Autocomplete failed", error);
-    return [];
+    throw new Error("Failed to search addresses. Please try again.");
   }
 }
 
@@ -110,9 +155,30 @@ export async function getPlaceDetails(
     const response = await fetch(url.toString());
     const data = await response.json();
 
+    // Handle specific Google Places API errors
+    if (data.status === "INVALID_REQUEST") {
+      logger.error("[Google Places] Invalid request for place details", data);
+      throw new Error("Invalid place ID. Please try selecting the address again.");
+    }
+    
+    if (data.status === "OVER_QUERY_LIMIT") {
+      logger.error("[Google Places] Over query limit for place details", data);
+      throw new Error("Too many requests. Please try again later.");
+    }
+    
+    if (data.status === "REQUEST_DENIED") {
+      logger.error("[Google Places] Request denied for place details", data);
+      throw new Error("API configuration issue. Please contact support.");
+    }
+    
+    if (data.status === "UNKNOWN_ERROR") {
+      logger.error("[Google Places] Unknown error for place details", data);
+      throw new Error("Service temporarily unavailable. Please try again.");
+    }
+    
     if (data.status !== "OK" || !data.result) {
       logger.error("[Google Places] Details error", data);
-      return null;
+      throw new Error("Failed to load address details. Please try again.");
     }
 
     return {
@@ -128,16 +194,26 @@ export async function getPlaceDetails(
       name: data.result.name,
     };
   } catch (error) {
+    // Re-throw if it's already a user-friendly error
+    if (error instanceof Error && (error.message.includes("Invalid") || error.message.includes("Too many") || error.message.includes("API") || error.message.includes("Service") || error.message.includes("Failed"))) {
+      throw error;
+    }
     logger.error("[Google Places] Details failed", error);
-    return null;
+    throw new Error("Failed to load address details. Please try again.");
   }
 }
 
 /**
  * Parse address components from Google Places response
+ * Swiggy Dec 2025 pattern: Use Google structured components only, no manual parsing
  */
 export function parseAddress(details: PlaceDetails): ParsedAddress {
   const components = details.addressComponents;
+  
+  if (!components || components.length === 0) {
+    logger.warn("[Google Places] No address components found", { placeId: details.placeId });
+    throw new Error("Address data incomplete. Please select a different address.");
+  }
   
   const getComponent = (types: string[]) => {
     const comp = components.find(c => types.some(t => c.types.includes(t)));
@@ -159,33 +235,24 @@ export function parseAddress(details: PlaceDetails): ParsedAddress {
   const state = getComponent(["administrative_area_level_1"]);
   const country = getComponent(["country"]);
 
-  // Fallback: Extract city from formatted address if not found in components
-  // Google Places formatted address typically: "Street, Area, City, State Pincode, Country"
-  let extractedCity = city;
-  if (!extractedCity && address) {
-    const parts = address.split(",").map(p => p.trim());
-    // Usually city is the 3rd segment (index 2) or 2nd segment (index 1) depending on format
-    // For India: "Street, Area, City, State Pincode, Country"
-    if (parts.length >= 3) {
-      extractedCity = parts[2] || parts[1] || "";
-    } else if (parts.length === 2) {
-      extractedCity = parts[1] || "";
-    }
-    // Remove pincode if present (e.g., "Bangalore 560038" -> "Bangalore")
-    if (extractedCity) {
-      extractedCity = extractedCity.replace(/\s+\d{6}$/, "").trim();
-    }
+  // Swiggy Dec 2025 pattern: Use structured components only, no manual parsing fallbacks
+  // If city is not found in components, use area or state as fallback (still from structured data)
+  const finalCity = city || area || state || "";
+  
+  if (!finalCity) {
+    logger.warn("[Google Places] City not found in address components", {
+      placeId: details.placeId,
+      components: components.map(c => ({ types: c.types, longName: c.longName }))
+    });
+    // Don't throw - allow empty city but log for debugging
   }
-
-  // Final fallback priority: extracted city > area > state > empty string (never "Unknown")
-  const finalCity = extractedCity || area || state || "";
 
   return {
     address,
     city: finalCity,
     pincode: pincode || "",
-    state,
-    country,
+    state: state || "",
+    country: country || "",
     lat: details.geometry.location.lat,
     lng: details.geometry.location.lng,
     area: area || finalCity,
@@ -242,9 +309,35 @@ export async function reverseGeocode(
     const response = await fetch(url.toString());
     const data = await response.json();
 
+    // Handle specific Google Places API errors
+    if (data.status === "ZERO_RESULTS") {
+      logger.warn("[Google Places] No results for reverse geocode", { lat, lng });
+      return null;
+    }
+    
+    if (data.status === "INVALID_REQUEST") {
+      logger.error("[Google Places] Invalid request for reverse geocode", data);
+      throw new Error("Invalid coordinates. Please try again.");
+    }
+    
+    if (data.status === "OVER_QUERY_LIMIT") {
+      logger.error("[Google Places] Over query limit for reverse geocode", data);
+      throw new Error("Too many requests. Please try again later.");
+    }
+    
+    if (data.status === "REQUEST_DENIED") {
+      logger.error("[Google Places] Request denied for reverse geocode", data);
+      throw new Error("API configuration issue. Please contact support.");
+    }
+    
+    if (data.status === "UNKNOWN_ERROR") {
+      logger.error("[Google Places] Unknown error for reverse geocode", data);
+      throw new Error("Service temporarily unavailable. Please try again.");
+    }
+    
     if (data.status !== "OK" || !data.results?.[0]) {
       logger.error("[Google Places] Reverse geocode error", data);
-      return null;
+      throw new Error("Failed to get address from location. Please try again.");
     }
 
     const result = data.results[0];
@@ -260,8 +353,72 @@ export async function reverseGeocode(
       },
     };
   } catch (error) {
+    // Re-throw if it's already a user-friendly error
+    if (error instanceof Error && (error.message.includes("Invalid") || error.message.includes("Too many") || error.message.includes("API") || error.message.includes("Service") || error.message.includes("Failed"))) {
+      throw error;
+    }
     logger.error("[Google Places] Reverse geocode failed", error);
-    return null;
+    throw new Error("Failed to get address from location. Please try again.");
+  }
+}
+
+/**
+ * Validate address using Google Address Validation API
+ * Swiggy Dec 2025 pattern: Validate addresses before saving
+ * Optional but recommended for production
+ */
+export async function validateAddress(
+  address: string,
+  apiKey: string
+): Promise<{ isValid: boolean; confidence: number; message?: string }> {
+  if (!address || !apiKey) {
+    return { isValid: false, confidence: 0, message: "Address or API key missing" };
+  }
+
+  try {
+    const url = new URL("https://addressvalidation.googleapis.com/v1:validateAddress");
+    url.searchParams.set("key", apiKey);
+
+    const response = await fetch(url.toString(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        address: {
+          addressLines: [address],
+          regionCode: "IN", // India
+        },
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      logger.error("[Google Places] Address validation error", data);
+      // Don't fail address save if validation fails - just log
+      return { isValid: true, confidence: 0.5, message: "Validation unavailable" };
+    }
+
+    const result = data.result;
+    const verdict = result.verdict;
+    const addressComponents = result.address;
+
+    // Check if address is complete and valid
+    const isValid = verdict?.addressComplete === true && verdict?.hasUnconfirmedComponents === false;
+    const confidence = result.verdict?.validationGranularity === "SUB_PREMISE" ? 0.9 :
+                      result.verdict?.validationGranularity === "PREMISE" ? 0.8 :
+                      result.verdict?.validationGranularity === "ROUTE" ? 0.7 : 0.5;
+
+    return {
+      isValid,
+      confidence,
+      message: isValid ? undefined : "Address may be incomplete or invalid",
+    };
+  } catch (error) {
+    logger.error("[Google Places] Address validation failed", error);
+    // Don't fail address save if validation fails - just log
+    return { isValid: true, confidence: 0.5, message: "Validation unavailable" };
   }
 }
 

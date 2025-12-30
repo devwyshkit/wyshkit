@@ -46,14 +46,28 @@ export function ProtectedRoute({ children, redirectTo = "/login", requiredRole }
     );
   }
 
-  // Show nothing while redirecting (or show children if authenticated)
+  // Show loading state while redirecting (prevents white screen)
   if (!user) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Redirecting...</p>
+        </div>
+      </div>
+    );
   }
 
-  // Check role if required
+  // Check role if required - show loading while redirecting
   if (requiredRole && user.role !== requiredRole) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Redirecting...</p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;

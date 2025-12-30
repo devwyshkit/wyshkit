@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { cn } from "@/lib/utils";
 
 interface CategoryChipProps {
@@ -8,7 +9,8 @@ interface CategoryChipProps {
   onClick: () => void;
 }
 
-export function CategoryChip({ name, isActive, onClick }: CategoryChipProps) {
+// Swiggy Dec 2025 pattern: Memoize expensive components to prevent unnecessary re-renders
+export const CategoryChip = React.memo(function CategoryChip({ name, isActive, onClick }: CategoryChipProps) {
   return (
     <button
       onClick={onClick}
@@ -23,4 +25,4 @@ export function CategoryChip({ name, isActive, onClick }: CategoryChipProps) {
       {name}
     </button>
   );
-}
+});

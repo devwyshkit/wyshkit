@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { vendorIdSchema } from "@/lib/validations/vendors";
 import { logger } from "@/lib/utils/logger";
-import { getSupabaseServiceClient } from "@/lib/supabase/client";
+import { createSupabaseServerClientWithRequest } from "@/lib/supabase/client";
 
 export async function GET(
   request: Request,
@@ -24,7 +24,8 @@ export async function GET(
     }
 
     const { id } = validationResult.data;
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use regular client for public data - RLS handles access control
+    const supabase = await createSupabaseServerClientWithRequest(request);
 
     if (!supabase) {
       return NextResponse.json(
@@ -33,26 +34,31 @@ export async function GET(
       );
     }
 
-    const { data: vendor, error: vendorError } = await supabase
-      .from("vendors")
-      .select("*")
-      .eq("id", id)
-      .single();
+    // Swiggy Dec 2025 pattern: Parallel queries with specific fields for maximum performance
+    const [vendorResult, productsResult] = await Promise.all([
+      supabase
+        .from("vendors")
+        .select("id, name, description, image, rating, city, is_online, status, zones, is_hyperlocal, intercity_enabled, max_delivery_radius, store_address, store_lat, store_lng, onboarding_status, commission_rate, created_at")
+        .eq("id", id)
+        .single(),
+      supabase
+        .from("products")
+        .select("id, vendor_id, name, description, price, image, images, category, is_personalizable, variants, add_ons, specs, materials, care_instructions")
+        .eq("vendor_id", id)
+        // Swiggy Dec 2025 pattern: RLS policy is source of truth - it already filters by is_active and vendor status
+    ]);
 
-    if (vendorError || !vendor) {
+    if (vendorResult.error || !vendorResult.data) {
       logger.warn("[API /vendors/[id]] Vendor not found:", id);
       return NextResponse.json({ error: "Partner not found" }, { status: 404 });
     }
 
-    const { data: vendorProducts, error: productsError } = await supabase
-      .from("products")
-      .select("*")
-      .eq("vendor_id", id)
-      .eq("is_active", true);
-
-    if (productsError) {
-      logger.error("[API /vendors/[id]] Failed to fetch products", productsError);
+    if (productsResult.error) {
+      logger.error("[API /vendors/[id]] Failed to fetch products", productsResult.error);
     }
+
+    const vendor = vendorResult.data;
+    const vendorProducts = productsResult.data || [];
 
     const formattedVendor = {
       id: vendor.id,

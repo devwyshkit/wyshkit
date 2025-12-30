@@ -11,6 +11,7 @@ import { Loader2, ArrowLeft, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import Image from "next/image";
 import { signInWithGoogle } from "@/lib/auth/google-oauth";
+import { logger } from "@/lib/utils/logger";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -56,20 +57,120 @@ export default function SignupPage() {
     try {
       const phoneNumber = phone.startsWith("+") ? phone : `+91${phone}`;
       
-      const response = await fetch("/api/auth/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phoneNumber }),
-      });
+      let response: Response;
+      try {
+        response = await fetch("/api/auth/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: phoneNumber }),
+        });
+      } catch (fetchError) {
+        // Handle network errors (connection refused, timeout, etc.)
+        const errorMessage = fetchError instanceof Error ? fetchError.message : String(fetchError);
+        const isDev = process.env.NODE_ENV === "development";
+        
+        if (
+          errorMessage.includes("Failed to fetch") ||
+          errorMessage.includes("ERR_CONNECTION_REFUSED") ||
+          errorMessage.includes("NetworkError") ||
+          errorMessage.includes("network")
+        ) {
+          const userMessage = isDev
+            ? "Server is not running. Please start the dev server with 'npm run dev'."
+            : "Unable to connect to server. Please check your internet connection and try again.";
+          
+          setPhoneError(userMessage);
+          showError(userMessage);
+          setIsLoading(false);
+          logger.error("[Signup] Connection error", {
+            error: errorMessage,
+            hint: isDev ? "Start dev server with: npm run dev" : undefined,
+          });
+          return;
+        }
+        
+        // Re-throw other fetch errors
+        throw fetchError;
+      }
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to send OTP");
+        // Build user-friendly error message based on error code
+        const errorCode = data.code || "";
+        const errorMessage = data.error || "Failed to send OTP";
+        const isDev = process.env.NODE_ENV === "development";
+        
+        // Handle specific error codes with actionable messages
+        let userFriendlyMessage = errorMessage;
+        
+        if (errorCode === "SMS_NOT_CONFIGURED") {
+          userFriendlyMessage = "SMS service is not configured. Please configure Twilio in Supabase Dashboard.";
+          if (data.hint) {
+            userFriendlyMessage += ` ${data.hint}`;
+          }
+        } else if (errorCode === "RATE_LIMIT") {
+          userFriendlyMessage = "Too many requests. Please wait a moment and try again.";
+        } else if (errorCode === "INVALID_PHONE" || errorCode === "INVALID_PHONE_FORMAT") {
+          userFriendlyMessage = "Invalid phone number format. Please use international format (e.g., +919740803490).";
+        } else if (errorCode === "SMS_SEND_FAILED") {
+          // Enhanced error message for SMS send failures
+          userFriendlyMessage = data.error || "Failed to send SMS.";
+          if (data.hint) {
+            userFriendlyMessage += `\n\n${data.hint}`;
+          }
+          // Add actionable steps
+          userFriendlyMessage += "\n\nTroubleshooting steps:";
+          userFriendlyMessage += "\n1. Check Twilio account balance (Twilio Console → Billing)";
+          userFriendlyMessage += "\n2. Verify Twilio Verify Service is active (Twilio Console → Verify → Services)";
+          userFriendlyMessage += "\n3. Check Supabase Dashboard → Authentication → Providers → Phone configuration";
+          userFriendlyMessage += "\n4. Verify phone number format is correct (E.164: +919740803490)";
+        }
+        
+        // In development, add technical details
+        if (isDev) {
+          if (data.code) {
+            userFriendlyMessage += `\n\n[${data.code}]`;
+          }
+          if (data.details) {
+            const detailsStr = typeof data.details === "string" 
+              ? data.details 
+              : JSON.stringify(data.details, null, 2);
+            userFriendlyMessage += `\n\nDetails: ${detailsStr}`;
+          }
+          if (data.dashboardUrl) {
+            userFriendlyMessage += `\n\nDashboard: ${data.dashboardUrl}`;
+          }
+          
+          // Log full error for debugging
+          logger.error("[Signup] OTP send failed", {
+            code: data.code,
+            error: data.error,
+            details: data.details,
+            fullResponse: data,
+          });
+        }
+        
+        throw new Error(userFriendlyMessage);
       }
 
-      success("OTP sent successfully");
+      // Check for warnings about SMS provider
+      if (data.warning) {
+        // Don't show "OTP sent successfully" if there's a warning
+        // Instead show the warning message
+        showError(data.warning);
+        logger.warn("[Signup] OTP request accepted but SMS may not be sent", { warning: data.warning });
+        // Still transition to OTP step so user can try entering OTP if they received it
+      } else {
+        // Show success message only if no warning
+        success("OTP sent successfully");
+      }
+      
       setStep("otp");
+      logger.info("[Signup] Switched to OTP step", {
+        phone: phone.replace(/\d(?=\d{4})/g, "*"),
+        hasWarning: !!data.warning,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to send OTP";
       setPhoneError(errorMessage);
@@ -100,7 +201,33 @@ export default function SignupPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Invalid OTP");
+        // Build detailed error message
+        const errorMessage = data.error || "Invalid OTP";
+        const isDev = process.env.NODE_ENV === "development";
+        
+        // In development, show error code and details
+        let fullErrorMessage = errorMessage;
+        if (isDev && data.code) {
+          fullErrorMessage += ` (Code: ${data.code})`;
+        }
+        if (isDev && data.details) {
+          const detailsStr = typeof data.details === "string" 
+            ? data.details 
+            : JSON.stringify(data.details, null, 2);
+          fullErrorMessage += `\n\nDetails: ${detailsStr}`;
+        }
+        
+        // Log full error for debugging
+        if (isDev) {
+          logger.error("[Signup] OTP verify failed", {
+            code: data.code,
+            error: data.error,
+            details: data.details,
+            fullResponse: data,
+          });
+        }
+        
+        throw new Error(fullErrorMessage);
       }
 
       if (data.user) {
@@ -193,7 +320,7 @@ export default function SignupPage() {
       <div className="flex flex-col items-center gap-4">
         <Link href="/" className="relative w-16 h-16">
           <Image
-            src="/logo.png"
+            src="/images/logo.png"
             alt="WyshKit"
             fill
             className="object-contain"
@@ -356,6 +483,7 @@ export default function SignupPage() {
               disabled={isLoading}
               autoFocus
               maxLength={50}
+              autoComplete="name"
             />
             <p className="text-xs text-muted-foreground">
               This helps us personalize your experience

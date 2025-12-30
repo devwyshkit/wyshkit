@@ -7,7 +7,9 @@ import { isAuthError, isErrorWithStatus, formatApiError } from "@/lib/types/api-
 import { getRazorpayService } from "@/lib/services/razorpay";
 import { getRazorpayRouteService } from "@/lib/services/razorpay-route";
 import { emailService } from "@/lib/services/email";
-import { getSupabaseServiceClient } from "@/lib/supabase/client";
+import { getSupabaseServiceClient, createSupabaseServerClientWithRequest } from "@/lib/supabase/client";
+import { getNimbusService } from "@/lib/services/nimbus";
+import { calculateOrderWeight } from "@/lib/utils/order-helpers";
 
 /**
  * Orders API
@@ -18,7 +20,8 @@ export async function GET(request: Request) {
     const user = await requireAuth(request);
     const customerId = user.id;
 
-    const supabase = getSupabaseServiceClient();
+    // Swiggy Dec 2025 pattern: Use regular client for authenticated requests - RLS handles access control
+    const supabase = await createSupabaseServerClientWithRequest(request);
     if (!supabase) {
       logger.error("[Orders API] Supabase client not available");
       return NextResponse.json(
@@ -27,9 +30,10 @@ export async function GET(request: Request) {
       );
     }
 
+    // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
     const { data: dbOrders, error } = await supabase
       .from("orders")
-      .select("*")
+      .select("id, order_number, customer_id, vendor_id, status, items, item_total, delivery_fee, platform_fee, cashback_used, total, delivery_type, delivery_address, payment_id, payment_status, created_at, updated_at")
       .eq("customer_id", customerId)
       .order("created_at", { ascending: false });
 
@@ -96,7 +100,7 @@ export async function POST(request: Request) {
 
     const { data: vendor } = await supabase
       .from("vendors")
-      .select("razorpay_account_id")
+      .select("razorpay_account_id, name, store_address, city, user_id, users(phone)")
       .eq("id", validatedData.vendorId)
       .single();
 
@@ -165,6 +169,56 @@ export async function POST(request: Request) {
       logger.error("[Orders API] Payment creation failed", paymentError);
     }
 
+    // Create Nimbus delivery after order creation
+    if (validatedData.deliveryType === 'local' || validatedData.deliveryType === 'intercity') {
+      try {
+        const nimbusService = getNimbusService();
+        
+        // Extract pincode from store address if available (format: "Address, City, Pincode")
+        const storePincode = vendor?.store_address?.match(/\b\d{6}\b/)?.[0] || '';
+        
+        // Get vendor phone from users table
+        const vendorPhone = (vendor as any)?.users?.phone || '';
+        
+        const deliveryRequest = {
+          orderId: newOrder.id,
+          pickupAddress: {
+            name: vendor?.name || 'Vendor',
+            phone: vendorPhone,
+            address: vendor?.store_address || '',
+            city: vendor?.city || '',
+            pincode: storePincode,
+          },
+          deliveryAddress: {
+            name: validatedData.deliveryAddress.name,
+            phone: validatedData.deliveryAddress.phone || user.phone,
+            address: validatedData.deliveryAddress.address,
+            city: validatedData.deliveryAddress.city,
+            pincode: validatedData.deliveryAddress.pincode,
+          },
+          weight: calculateOrderWeight(validatedData.items),
+          type: validatedData.deliveryType,
+        };
+
+        const deliveryResult = await nimbusService.createDelivery(deliveryRequest);
+        
+        // Update order with delivery info
+        await supabase.from("orders").update({
+          delivery_partner_id: deliveryResult.partnerId,
+          estimated_delivery: deliveryResult.estimatedTime,
+        }).eq("id", newOrder.id);
+        
+        logger.info("[Orders API] Nimbus delivery created", { 
+          orderId: newOrder.id, 
+          deliveryId: deliveryResult.deliveryId 
+        });
+      } catch (nimbusError) {
+        logger.error("[Orders API] Nimbus delivery creation failed", nimbusError);
+        // Don't fail order creation if delivery creation fails
+        // Order is already created and payment processed
+      }
+    }
+
     // Trigger email confirmation asynchronously
     if (user.email) {
       emailService.sendOrderConfirmation(user.email, orderNumber, newOrder.id, total, validatedData.items.map(i => ({ name: "Custom Gift", quantity: i.quantity, price: i.price })))
@@ -180,9 +234,23 @@ export async function POST(request: Request) {
     });
   } catch (error: unknown) {
     if (isAuthError(error) || (isErrorWithStatus(error) && error.status === 401)) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+      return NextResponse.json({ error: "Authentication required", code: "AUTH_REQUIRED" }, { status: 401 });
     }
-    logger.error("[Orders API] Post failure", error);
-    return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
+    
+    logger.error("[Orders API] Post failure", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    
+    return NextResponse.json(
+      { 
+        error: "Failed to create order. Please try again.", 
+        code: "ORDER_CREATE_FAILED",
+        ...(process.env.NODE_ENV === "development" && { 
+          details: error instanceof Error ? error.message : String(error) 
+        }),
+      },
+      { status: 500 }
+    );
   }
 }

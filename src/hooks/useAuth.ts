@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/utils/logger";
 import type { User } from "@supabase/supabase-js";
@@ -36,37 +36,6 @@ function mapSupabaseUser(supabaseUser: User | null): AuthUser | null {
 }
 
 /**
- * Get dev auth from cookies (browser-side)
- */
-function getDevAuthFromCookies(): AuthUser | null {
-  if (typeof window === "undefined") return null;
-  
-  const cookies = document.cookie.split(";").reduce((acc, cookie) => {
-    const [key, value] = cookie.trim().split("=");
-    acc[key] = value;
-    return acc;
-  }, {} as Record<string, string>);
-  
-    const devUserId = cookies["dev_auth_user_id"];
-    const devRole = cookies["dev_auth_role"];
-    
-    if (devUserId && devRole) {
-      // Use the same UUID logic as server-side for consistency
-      const finalId = devUserId.length < 36 ? "00000000-0000-0000-0000-000000000001" : devUserId;
-      
-      return {
-        id: finalId,
-        email: `${devRole}@example.com`,
-        name: `Test ${devRole}`,
-        phone: "+919876543210",
-        role: devRole,
-      };
-    }
-  
-  return null;
-}
-
-/**
  * useAuth hook using Supabase Auth
  * Swiggy Dec 2025 pattern: Simple, clean auth hook with Supabase
  */
@@ -74,6 +43,8 @@ export function useAuth(): UseAuthResult {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const previousUserIdRef = useRef<string | null>(null); // Track previous user ID to prevent unnecessary updates
+  const isInitializingRef = useRef(false); // Prevent multiple INITIAL_SESSION events
 
   const fetchSession = async () => {
     // Don't fetch on server-side
@@ -81,32 +52,6 @@ export function useAuth(): UseAuthResult {
       setLoading(false);
       setUser(null);
       return;
-    }
-
-    // DEV BYPASS: Check for dev auth cookies first
-    const devUser = getDevAuthFromCookies();
-    if (devUser) {
-      logger.debug("[useAuth] Using dev bypass from cookies", { role: devUser.role });
-      setUser(devUser);
-      setLoading(false);
-      return;
-    }
-
-    // EMERGENCY BYPASS: If in development and specifically requested to bypass auth
-    if (process.env.NODE_ENV === "development") {
-      // Auto-login as vendor for vendor routes if no session found
-      if (typeof window !== "undefined" && window.location.pathname.startsWith("/vendor")) {
-        logger.debug("[useAuth] Auto-assigning vendor role for dev testing");
-        setUser({
-          id: "dev-vendor-id",
-          email: "vendor@example.com",
-          name: "Dev Partner",
-          phone: "+910000000000",
-          role: "vendor",
-        });
-        setLoading(false);
-        return;
-      }
     }
 
     try {
@@ -121,7 +66,7 @@ export function useAuth(): UseAuthResult {
         return;
       }
 
-      // Get session from Supabase
+      // Get session from Supabase (cookies are automatically read by createBrowserClient)
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
       if (sessionError) {
@@ -133,9 +78,17 @@ export function useAuth(): UseAuthResult {
 
       if (session?.user) {
         const authUser = mapSupabaseUser(session.user);
-        setUser(authUser);
+        // Only update if user ID actually changed - prevent unnecessary re-renders
+        if (previousUserIdRef.current !== authUser.id) {
+          setUser(authUser);
+          previousUserIdRef.current = authUser.id;
+        }
       } else {
-        setUser(null);
+        // Only update if we had a user before - prevent unnecessary re-renders
+        if (previousUserIdRef.current !== null) {
+          setUser(null);
+          previousUserIdRef.current = null;
+        }
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
@@ -148,37 +101,52 @@ export function useAuth(): UseAuthResult {
   };
 
   useEffect(() => {
+    // Prevent multiple simultaneous initializations
+    if (isInitializingRef.current) {
+      return;
+    }
+    isInitializingRef.current = true;
+
     fetchSession();
 
     // Listen to auth state changes for real-time updates
     const supabase = getSupabaseClient();
-    if (!supabase) return;
+    if (!supabase) {
+      isInitializingRef.current = false;
+      return;
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       logger.debug("[useAuth] Auth state changed", event);
       
-      // If we have a dev user from cookies, don't let Supabase state change overwrite it
-      // unless it's a real sign-in event
-      const devUser = getDevAuthFromCookies();
-      if (devUser && event !== "SIGNED_IN") {
-        logger.debug("[useAuth] Preserving dev user despite auth state change", event);
-        setUser(devUser);
+      // Ignore duplicate INITIAL_SESSION events - Swiggy Dec 2025 pattern: Prevent cascading updates
+      if (event === "INITIAL_SESSION" && previousUserIdRef.current !== null) {
+        logger.debug("[useAuth] Ignoring duplicate INITIAL_SESSION event");
         setLoading(false);
         return;
       }
-
+      
       if (session?.user) {
         const authUser = mapSupabaseUser(session.user);
-        setUser(authUser);
-        setError(null);
+        // Only update if user ID actually changed - prevent unnecessary re-renders
+        if (previousUserIdRef.current !== authUser.id) {
+          setUser(authUser);
+          previousUserIdRef.current = authUser.id;
+          setError(null);
+        }
       } else {
-        setUser(null);
+        // Only update if we had a user before - prevent unnecessary re-renders
+        if (previousUserIdRef.current !== null) {
+          setUser(null);
+          previousUserIdRef.current = null;
+        }
       }
       setLoading(false);
     });
 
     return () => {
       subscription.unsubscribe();
+      isInitializingRef.current = false;
     };
   }, []);
 

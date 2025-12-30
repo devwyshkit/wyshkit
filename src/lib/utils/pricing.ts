@@ -35,24 +35,6 @@ export function calculateItemPrice(
 }
 
 /**
- * Calculate total price including variants and add-ons
- * @deprecated Use calculateItemPrice instead
- */
-export function calculateProductPrice(
-  basePrice: number,
-  selectedVariants: Array<{ priceModifier?: number }>,
-  selectedAddOns: Array<{ price: number }>
-): number {
-  const variantModifier = selectedVariants.reduce(
-    (sum, variant) => sum + (variant.priceModifier || 0),
-    0
-  );
-  const addOnsPrice = selectedAddOns.reduce((sum, addon) => sum + addon.price, 0);
-  
-  return basePrice + variantModifier + addOnsPrice;
-}
-
-/**
  * Calculate order total
  */
 export function calculateOrderTotal(

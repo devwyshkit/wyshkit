@@ -5,7 +5,7 @@ import postgres from 'postgres';
 import * as schema from './schema';
 import { logger } from '@/lib/utils/logger';
 
-// TODO: Get from environment variables
+// Get from environment variables
 const connectionString = process.env.DATABASE_URL || '';
 
 // Only create connection if DATABASE_URL is set and not a placeholder

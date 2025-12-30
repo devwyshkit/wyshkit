@@ -14,8 +14,12 @@ import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import Link from "next/link";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { cn } from "@/lib/utils";
+import { getSupabaseClient } from "@/lib/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { logger } from "@/lib/utils/logger";
 
 function SearchContent() {
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialQuery = searchParams.get('q') || '';
@@ -31,67 +35,184 @@ function SearchContent() {
   const occasions = [
     { 
       name: "Birthday",
-      image: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0",
+      image: "https://picsum.photos/800/600?random=7",
       href: "/search?occasion=birthday"
     },
     { 
       name: "Anniversary",
-      image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7",
+      image: "https://picsum.photos/800/600?random=14",
       href: "/search?occasion=anniversary"
     },
     { 
       name: "Wedding",
-      image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3",
+      image: "https://picsum.photos/800/600?random=13",
       href: "/search?occasion=wedding"
     },
     { 
       name: "Baby Shower",
-      image: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9",
+      image: "https://picsum.photos/800/600?random=15",
       href: "/search?occasion=baby-shower"
     },
     { 
       name: "Valentine's Day",
-      image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7",
+      image: "https://picsum.photos/800/600?random=14",
       href: "/search?occasion=valentine"
     },
     { 
       name: "Mother's Day",
-      image: "https://images.unsplash.com/photo-1522673607200-1648482ce486",
+      image: "https://picsum.photos/800/600?random=2",
       href: "/search?occasion=mothers-day"
     },
   ];
 
-  // Load recent searches from localStorage
+  // Load recent searches from Supabase (if logged in) or localStorage (if anonymous)
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const RECENT_SEARCHES_KEY = "wyshkit-recent-searches";
   const MAX_RECENT_SEARCHES = 5;
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(RECENT_SEARCHES_KEY);
-      if (saved) {
-        setRecentSearches(JSON.parse(saved));
-      }
-    } catch (e) {
-      // Ignore parse errors
+    if (typeof window === "undefined") {
+      return;
     }
-  }, []);
 
-  const addToRecentSearches = (term: string) => {
+    const loadRecentSearches = async () => {
+      if (user?.id) {
+        // User is logged in - load from Supabase
+        const supabase = getSupabaseClient();
+        if (supabase) {
+          try {
+            const { data: searchHistory, error: historyError } = await supabase
+              .from('user_search_history')
+              .select('search_term')
+              .eq('user_id', user.id)
+              .order('created_at', { ascending: false })
+              .limit(MAX_RECENT_SEARCHES);
+
+            if (!historyError && searchHistory) {
+              const searches = searchHistory.map(s => s.search_term);
+              setRecentSearches(searches);
+
+              // Sync localStorage if it has different searches
+              const saved = localStorage.getItem(RECENT_SEARCHES_KEY);
+              if (saved) {
+                try {
+                  const localSearches = JSON.parse(saved);
+                  // Merge and sync any new searches from localStorage
+                  const merged = [...new Set([...searches, ...localSearches])].slice(0, MAX_RECENT_SEARCHES);
+                  if (merged.length > searches.length) {
+                    // Insert new searches from localStorage
+                    for (const term of merged) {
+                      if (!searches.includes(term)) {
+                        await supabase
+                          .from('user_search_history')
+                          .insert({ user_id: user.id, search_term: term });
+                      }
+                    }
+                    setRecentSearches(merged);
+                  }
+                  localStorage.removeItem(RECENT_SEARCHES_KEY); // Clear after sync
+                } catch (e) {
+                  // Swiggy Dec 2025 pattern: Log parse errors for debugging
+                  if (process.env.NODE_ENV === 'development') {
+                    logger.debug("[Search] Parse error (non-critical)", e);
+                  }
+                }
+              }
+            } else {
+              // Fallback to localStorage
+              const saved = localStorage.getItem(RECENT_SEARCHES_KEY);
+              if (saved) {
+                try {
+                  setRecentSearches(JSON.parse(saved));
+                } catch (e) {
+                  // Swiggy Dec 2025 pattern: Log parse errors for debugging
+                  if (process.env.NODE_ENV === 'development') {
+                    logger.debug("[Search] Parse error (non-critical)", e);
+                  }
+                }
+              }
+            }
+          } catch (error) {
+            logger.error("[Search] Error loading search history", error);
+            // Fallback to localStorage
+            const saved = localStorage.getItem(RECENT_SEARCHES_KEY);
+            if (saved) {
+              try {
+                setRecentSearches(JSON.parse(saved));
+              } catch (e) {
+                // Swiggy Dec 2025 pattern: Log parse errors for debugging
+                if (process.env.NODE_ENV === 'development') {
+                  logger.debug("[Search] Parse error (non-critical)", e);
+                }
+              }
+            }
+          }
+        }
+      } else {
+        // Anonymous user - load from localStorage
+        try {
+          const saved = localStorage.getItem(RECENT_SEARCHES_KEY);
+          if (saved) {
+            setRecentSearches(JSON.parse(saved));
+          }
+        } catch (e) {
+          // Swiggy Dec 2025 pattern: Log parse errors for debugging
+          if (process.env.NODE_ENV === 'development') {
+            logger.debug("[Search] Parse error (non-critical)", e);
+          }
+        }
+      }
+    };
+
+    loadRecentSearches();
+  }, [user?.id]);
+
+  const addToRecentSearches = async (term: string) => {
     if (!term.trim()) return;
+    
     setRecentSearches(prev => {
       const filtered = prev.filter(s => s.toLowerCase() !== term.toLowerCase());
       const updated = [term, ...filtered].slice(0, MAX_RECENT_SEARCHES);
-      try {
-        // SSR safety check - localStorage is only available in browser
-        if (typeof window !== "undefined") {
-          localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
-        }
-      } catch (e) {
-        // Ignore storage errors
-      }
       return updated;
     });
+
+    // Save to Supabase (if logged in) or localStorage (if anonymous)
+    if (user?.id) {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        try {
+          const { error: insertError } = await supabase
+            .from('user_search_history')
+            .insert({ user_id: user.id, search_term: term });
+
+          if (insertError) {
+            logger.error("[Search] Failed to save search history", insertError);
+            // Fallback to localStorage
+            if (typeof window !== "undefined") {
+              localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([term, ...recentSearches.filter(s => s.toLowerCase() !== term.toLowerCase())].slice(0, MAX_RECENT_SEARCHES)));
+            }
+          }
+        } catch (error) {
+          logger.error("[Search] Error saving search history", error);
+          // Fallback to localStorage
+          if (typeof window !== "undefined") {
+            localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([term, ...recentSearches.filter(s => s.toLowerCase() !== term.toLowerCase())].slice(0, MAX_RECENT_SEARCHES)));
+          }
+        }
+      }
+    } else {
+      // Anonymous user - save to localStorage
+      try {
+        if (typeof window !== "undefined") {
+          localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([term, ...recentSearches.filter(s => s.toLowerCase() !== term.toLowerCase())].slice(0, MAX_RECENT_SEARCHES)));
+        }
+      } catch (e) {
+        // Swiggy Dec 2025 pattern: Log storage errors for debugging
+        if (process.env.NODE_ENV === 'development') {
+          logger.debug("[Search] Storage error (non-critical)", e);
+        }
+      }
+    }
   };
 
   // Remove trending section (not available from API)

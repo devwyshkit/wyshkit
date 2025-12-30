@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import Image from "next/image";
+import { logger } from "@/lib/utils/logger";
+import { appConfig } from "@/lib/config/app";
 
 interface MockupUploaderProps {
   orderId: string;
@@ -24,6 +26,7 @@ export function MockupUploader({
 }: MockupUploaderProps) {
   const [images, setImages] = useState<string[]>(initialUrls);
   const [isUploading, setIsUploading] = useState(false);
+  const uploadConfig = appConfig.uploads.mockupImage;
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -37,7 +40,23 @@ export function MockupUploader({
       const newUrls: string[] = [...images];
 
       for (const file of Array.from(files)) {
-        const fileExt = file.name.split(".").pop();
+        // Validate file size
+        if (file.size > uploadConfig.maxSize) {
+          toast.error(`File too large`, `Maximum size is ${uploadConfig.maxSize / (1024 * 1024)}MB`);
+          continue;
+        }
+
+        // Validate file type
+        const fileExt = file.name.split(".").pop()?.toLowerCase();
+        const fileType = file.type;
+        
+        const isValidType = uploadConfig.allowedTypes.includes(fileType) || 
+                           (fileExt && uploadConfig.allowedExtensions.includes(`.${fileExt}`));
+        
+        if (!isValidType) {
+          toast.error(`Invalid file type`, `Only ${uploadConfig.allowedExtensions.join(', ')} files are allowed`);
+          continue;
+        }
         const fileName = `${orderId}/${productId}/${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
         const filePath = `mockups/${fileName}`;
 
@@ -58,7 +77,7 @@ export function MockupUploader({
       onUpload(newUrls);
       toast.success("Images uploaded successfully");
     } catch (error) {
-      console.error("Upload error:", error);
+      logger.error("[MockupUploader] Upload error", error);
       toast.error("Failed to upload images");
     } finally {
       setIsUploading(false);
@@ -75,7 +94,9 @@ export function MockupUploader({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium">{productName}</p>
-        <p className="text-xs text-muted-foreground">{images.length}/5 images</p>
+        <p className="text-xs text-muted-foreground">
+          {images.length}/5 images • Max {uploadConfig.maxSize / (1024 * 1024)}MB each
+        </p>
       </div>
 
       <div className="grid grid-cols-3 gap-2">
@@ -104,7 +125,7 @@ export function MockupUploader({
             <input 
               type="file" 
               multiple 
-              accept="image/*" 
+              accept={appConfig.uploads.mockupImage.allowedExtensions.join(',')} 
               className="hidden" 
               onChange={handleUpload} 
               disabled={isUploading}
