@@ -6,14 +6,14 @@
  * This is needed when Supabase uses implicit flow or when redirect URL doesn't match exactly
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/utils/logger";
 import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function OAuthCallbackPage() {
+function OAuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"processing" | "success" | "error">("processing");
@@ -155,7 +155,7 @@ export default function OAuthCallbackPage() {
     };
 
     handleOAuthCallback();
-  }, [router, returnUrlState]);
+  }, [router, returnUrlState, searchParams]);
 
   if (status === "processing" || isSyncing) {
     return (
@@ -206,6 +206,21 @@ export default function OAuthCallbackPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OAuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+          <p className="text-lg font-medium">Loading...</p>
+        </div>
+      </div>
+    }>
+      <OAuthCallbackContent />
+    </Suspense>
   );
 }
 

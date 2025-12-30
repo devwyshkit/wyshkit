@@ -14,3 +14,4 @@ CHECK (status IN ('pending', 'approved', 'rejected'));
 -- Add comment explaining status values
 COMMENT ON COLUMN vendors.status IS 'Vendor approval status: pending, approved, or rejected';
 
+

@@ -77,6 +77,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             details: queryError.details,
           });
           setNotifications([]);
+          setLoading(false); // CRITICAL FIX: Always set loading to false on error
           return;
         }
 

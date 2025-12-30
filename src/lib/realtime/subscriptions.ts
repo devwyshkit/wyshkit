@@ -89,21 +89,37 @@ function startVendorOrdersPolling(
   
   const interval = setInterval(async () => {
     try {
-      const response = await fetch(`/api/vendors/${vendorId}/orders?status=pending`);
-      if (response.ok) {
-        const { orders } = await response.json();
-        if (Array.isArray(orders)) {
-          orders.forEach((order: { id: string; status: string }) => {
-            if (!seenOrderIds.has(order.id)) {
-              seenOrderIds.add(order.id);
-              callback({
-                orderId: order.id,
-                status: order.status,
-                action: "new",
-              });
-            }
-          });
-        }
+      // Swiggy Dec 2025 pattern: Use direct Supabase calls instead of API route
+      // This maximizes Supabase usage and avoids unnecessary API hops
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        logger.error("[Realtime] Supabase client not available for polling");
+        return;
+      }
+
+      const { data: orders, error } = await supabase
+        .from("orders")
+        .select("id, status")
+        .eq("vendor_id", vendorId)
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        logger.error("[Realtime] Polling error", error);
+        return;
+      }
+
+      if (Array.isArray(orders)) {
+        orders.forEach((order: { id: string; status: string }) => {
+          if (!seenOrderIds.has(order.id)) {
+            seenOrderIds.add(order.id);
+            callback({
+              orderId: order.id,
+              status: order.status,
+              action: "new",
+            });
+          }
+        });
       }
     } catch (error) {
       logger.error("[Realtime] Polling error", error);
@@ -203,9 +219,21 @@ export function subscribeToOrder(
         try {
           client.removeChannel(channel);
         } catch (cleanupError) {
-          // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
-          if (process.env.NODE_ENV === 'development') {
-            logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+          // Swiggy Dec 2025 pattern: Check if error is browser extension related
+          const isBrowserExtensionError = cleanupError instanceof Error && 
+            (cleanupError.message.toLowerCase().includes("runtime.lasterror") ||
+             cleanupError.message.toLowerCase().includes("message port closed"));
+          
+          if (isBrowserExtensionError) {
+            // Browser extension errors are harmless - log in development only
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug("[Realtime] Browser extension error during cleanup (suppressed)", cleanupError);
+            }
+          } else {
+            // Log legitimate cleanup errors
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+            }
           }
         }
         pollingUnsubscribe = startPollingFallback(orderId, callback);
@@ -272,7 +300,19 @@ export function subscribeToOrder(
           client.removeChannel(channel);
           logger.debug(`[Realtime] Unsubscribed from order ${orderId}`);
         } catch (error) {
-          logger.error(`[Realtime] Error unsubscribing from order ${orderId}`, error);
+          // Swiggy Dec 2025 pattern: Check if error is browser extension related
+          const isBrowserExtensionError = error instanceof Error && 
+            (error.message.toLowerCase().includes("runtime.lasterror") ||
+             error.message.toLowerCase().includes("message port closed"));
+          
+          if (isBrowserExtensionError) {
+            // Browser extension errors are harmless - log in development only
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug(`[Realtime] Browser extension error during cleanup (suppressed)`, error);
+            }
+          } else {
+            logger.error(`[Realtime] Error unsubscribing from order ${orderId}`, error);
+          }
         }
       }
     };
@@ -347,9 +387,21 @@ export function subscribeToVendorOrders(
           try {
             client.removeChannel(channel);
           } catch (cleanupError) {
-            // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
-            if (process.env.NODE_ENV === 'development') {
-              logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+            // Swiggy Dec 2025 pattern: Check if error is browser extension related
+            const isBrowserExtensionError = cleanupError instanceof Error && 
+              (cleanupError.message.toLowerCase().includes("runtime.lasterror") ||
+               cleanupError.message.toLowerCase().includes("message port closed"));
+            
+            if (isBrowserExtensionError) {
+              // Browser extension errors are harmless - log in development only
+              if (process.env.NODE_ENV === 'development') {
+                logger.debug("[Realtime] Browser extension error during cleanup (suppressed)", cleanupError);
+              }
+            } else {
+              // Log legitimate cleanup errors
+              if (process.env.NODE_ENV === 'development') {
+                logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+              }
             }
           }
           // Switch to polling - this will be handled by the return function
@@ -376,9 +428,21 @@ export function subscribeToVendorOrders(
             try {
               client.removeChannel(channel);
             } catch (cleanupError) {
-              // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
-              if (process.env.NODE_ENV === 'development') {
-                logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+              // Swiggy Dec 2025 pattern: Check if error is browser extension related
+              const isBrowserExtensionError = cleanupError instanceof Error && 
+                (cleanupError.message.toLowerCase().includes("runtime.lasterror") ||
+                 cleanupError.message.toLowerCase().includes("message port closed"));
+              
+              if (isBrowserExtensionError) {
+                // Browser extension errors are harmless - log in development only
+                if (process.env.NODE_ENV === 'development') {
+                  logger.debug("[Realtime] Browser extension error during cleanup (suppressed)", cleanupError);
+                }
+              } else {
+                // Log legitimate cleanup errors
+                if (process.env.NODE_ENV === 'development') {
+                  logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+                }
               }
             }
             pollingUnsubscribe = startVendorOrdersPolling(vendorId, callback);
@@ -390,9 +454,21 @@ export function subscribeToVendorOrders(
           try {
             client.removeChannel(channel);
           } catch (cleanupError) {
-            // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
-            if (process.env.NODE_ENV === 'development') {
-              logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+            // Swiggy Dec 2025 pattern: Check if error is browser extension related
+            const isBrowserExtensionError = cleanupError instanceof Error && 
+              (cleanupError.message.toLowerCase().includes("runtime.lasterror") ||
+               cleanupError.message.toLowerCase().includes("message port closed"));
+            
+            if (isBrowserExtensionError) {
+              // Browser extension errors are harmless - log in development only
+              if (process.env.NODE_ENV === 'development') {
+                logger.debug("[Realtime] Browser extension error during cleanup (suppressed)", cleanupError);
+              }
+            } else {
+              // Log legitimate cleanup errors
+              if (process.env.NODE_ENV === 'development') {
+                logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+              }
             }
           }
           pollingUnsubscribe = startVendorOrdersPolling(vendorId, callback);
@@ -411,7 +487,19 @@ export function subscribeToVendorOrders(
           client.removeChannel(channel);
           logger.debug(`[Realtime] Unsubscribed from vendor ${vendorId} orders`);
         } catch (error) {
-          logger.error(`[Realtime] Error unsubscribing from vendor ${vendorId} orders`, error);
+          // Swiggy Dec 2025 pattern: Check if error is browser extension related
+          const isBrowserExtensionError = error instanceof Error && 
+            (error.message.toLowerCase().includes("runtime.lasterror") ||
+             error.message.toLowerCase().includes("message port closed"));
+          
+          if (isBrowserExtensionError) {
+            // Browser extension errors are harmless - log in development only
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug(`[Realtime] Browser extension error during cleanup (suppressed)`, error);
+            }
+          } else {
+            logger.error(`[Realtime] Error unsubscribing from vendor ${vendorId} orders`, error);
+          }
         }
       }
     };
@@ -527,14 +615,26 @@ export function subscribeToNotifications(
         } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
           logger.error(`[Realtime] Subscription failed for user ${userId} notifications (status: ${status}). Realtime may not be enabled in Supabase. Check Supabase dashboard > Database > Replication.`);
           logger.warn(`[Realtime] Falling back to polling for user ${userId} notifications`);
-          try {
-            client.removeChannel(channel);
-          } catch (cleanupError) {
-            // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
+        try {
+          client.removeChannel(channel);
+        } catch (cleanupError) {
+          // Swiggy Dec 2025 pattern: Check if error is browser extension related
+          const isBrowserExtensionError = cleanupError instanceof Error && 
+            (cleanupError.message.toLowerCase().includes("runtime.lasterror") ||
+             cleanupError.message.toLowerCase().includes("message port closed"));
+          
+          if (isBrowserExtensionError) {
+            // Browser extension errors are harmless - log in development only
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug("[Realtime] Browser extension error during cleanup (suppressed)", cleanupError);
+            }
+          } else {
+            // Log legitimate cleanup errors
             if (process.env.NODE_ENV === 'development') {
               logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
             }
           }
+        }
         } else {
           logger.debug(`[Realtime] Subscription status for user ${userId} notifications: ${status}`);
         }
@@ -552,14 +652,26 @@ export function subscribeToNotifications(
           if (channelState !== "joined" && channelState !== "joining") {
             logger.warn(`[Realtime] Channel not joined for user ${userId} notifications, falling back to polling`);
             subscriptionActive = false;
-            try {
-              client.removeChannel(channel);
-            } catch (cleanupError) {
-              // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
-              if (process.env.NODE_ENV === 'development') {
-                logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
-              }
+        try {
+          client.removeChannel(channel);
+        } catch (cleanupError) {
+          // Swiggy Dec 2025 pattern: Check if error is browser extension related
+          const isBrowserExtensionError = cleanupError instanceof Error && 
+            (cleanupError.message.toLowerCase().includes("runtime.lasterror") ||
+             cleanupError.message.toLowerCase().includes("message port closed"));
+          
+          if (isBrowserExtensionError) {
+            // Browser extension errors are harmless - log in development only
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug("[Realtime] Browser extension error during cleanup (suppressed)", cleanupError);
             }
+          } else {
+            // Log legitimate cleanup errors
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
+            }
+          }
+        }
             // Start polling fallback
             let lastNotificationId: string | null = null;
             const interval = setInterval(async () => {
@@ -593,14 +705,26 @@ export function subscribeToNotifications(
         } catch (checkError) {
           logger.warn(`[Realtime] Cannot verify subscription state for user ${userId} notifications, falling back to polling`);
           subscriptionActive = false;
-          try {
-            client.removeChannel(channel);
-          } catch (cleanupError) {
-            // Swiggy Dec 2025 pattern: Log cleanup errors for debugging
+        try {
+          client.removeChannel(channel);
+        } catch (cleanupError) {
+          // Swiggy Dec 2025 pattern: Check if error is browser extension related
+          const isBrowserExtensionError = cleanupError instanceof Error && 
+            (cleanupError.message.toLowerCase().includes("runtime.lasterror") ||
+             cleanupError.message.toLowerCase().includes("message port closed"));
+          
+          if (isBrowserExtensionError) {
+            // Browser extension errors are harmless - log in development only
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug("[Realtime] Browser extension error during cleanup (suppressed)", cleanupError);
+            }
+          } else {
+            // Log legitimate cleanup errors
             if (process.env.NODE_ENV === 'development') {
               logger.debug("[Realtime] Cleanup error (non-critical)", cleanupError);
             }
           }
+        }
           // Start polling fallback
           let lastNotificationId: string | null = null;
           const interval = setInterval(async () => {
@@ -645,7 +769,19 @@ export function subscribeToNotifications(
           client.removeChannel(channel);
           logger.debug(`[Realtime] Unsubscribed from notifications for user ${userId}`);
         } catch (error) {
-          logger.error(`[Realtime] Error unsubscribing from notifications for user ${userId}`, error);
+          // Swiggy Dec 2025 pattern: Check if error is browser extension related
+          const isBrowserExtensionError = error instanceof Error && 
+            (error.message.toLowerCase().includes("runtime.lasterror") ||
+             error.message.toLowerCase().includes("message port closed"));
+          
+          if (isBrowserExtensionError) {
+            // Browser extension errors are harmless - log in development only
+            if (process.env.NODE_ENV === 'development') {
+              logger.debug(`[Realtime] Browser extension error during cleanup (suppressed)`, error);
+            }
+          } else {
+            logger.error(`[Realtime] Error unsubscribing from notifications for user ${userId}`, error);
+          }
         }
       }
     };

@@ -73,21 +73,23 @@ export function useSearch(initialQuery?: string, initialOccasion?: string): UseS
 
       // Swiggy Dec 2025 pattern: Direct Supabase queries with parallelization and specific fields
       // Search both vendors and products in parallel for maximum performance
+      // Note: vendors table doesn't have updated_at, review_count, or delivery_time columns
       const [vendorsResult, productsResult] = await Promise.all([
         supabase
           .from('vendors')
-          .select('id, name, description, image, city, rating, is_online, zones, is_hyperlocal, intercity_enabled, max_delivery_radius, user_id, review_count, delivery_time, status, created_at, updated_at')
+          .select('id, name, description, image, city, rating, is_online, zones, is_hyperlocal, intercity_enabled, max_delivery_radius, user_id, status, created_at')
           // Swiggy Dec 2025 pattern: RLS policy is source of truth - it already filters by vendor status
           // Removed is_online filter - RLS handles all visibility logic, no redundant application-level filters
           .ilike('name', `%${searchTerm.trim()}%`),
         supabase
           .from('products')
-          .select('id, vendor_id, name, description, price, image, images, category, is_personalizable, variants, add_ons, specs, materials, care_instructions')
+          .select(getMinimalProductFields())
           // Swiggy Dec 2025 pattern: RLS policy is source of truth - it already filters by is_active and vendor status
           .or(`name.ilike.%${searchTerm.trim()}%,description.ilike.%${searchTerm.trim()}%`)
       ]);
 
       // Format vendors (snake_case to camelCase)
+      // Note: vendors table doesn't have review_count, delivery_time, or updated_at columns
       const formattedVendors: Vendor[] = (vendorsResult.data || []).map((v: any) => ({
         id: v.id,
         userId: v.user_id,
@@ -96,12 +98,12 @@ export function useSearch(initialQuery?: string, initialOccasion?: string): UseS
         image: v.image || "",
         city: v.city || "",
         rating: v.rating ? parseFloat(v.rating) : 0,
-        reviewCount: v.review_count || 0,
-        deliveryTime: v.delivery_time || "",
+        reviewCount: 0, // Not available in vendors table
+        deliveryTime: "", // Not available in vendors table
         isOnline: v.is_online ?? false,
         status: v.status,
         createdAt: v.created_at,
-        updatedAt: v.updated_at,
+        updatedAt: null, // vendors table doesn't have updated_at
         tags: Array.isArray(v.zones) ? v.zones : [],
         isHyperlocal: v.is_hyperlocal ?? true,
         deliveryZones: {

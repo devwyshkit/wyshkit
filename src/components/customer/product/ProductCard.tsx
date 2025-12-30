@@ -40,13 +40,15 @@ export const ProductCard = React.memo(function ProductCard({
     >
       <div className="flex-1 min-w-0">
         <div className="flex items-start gap-1.5 mb-1">
-          {isPersonalizable && (
-            <span className="inline-block w-3.5 h-3.5 border-2 border-primary rounded shrink-0 mt-0.5" />
-          )}
           <h3 className="font-semibold text-[15px] leading-tight line-clamp-2 text-foreground">
             {name}
           </h3>
         </div>
+        {isPersonalizable && (
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full mt-1">
+            Personalizable
+          </span>
+        )}
         
         <p className="text-base font-bold text-foreground mt-1">
           ₹{priceNum.toLocaleString("en-IN")}
@@ -90,6 +92,4 @@ export const ProductCard = React.memo(function ProductCard({
       </div>
     </div>
   );
-});
-
 });

@@ -9,10 +9,11 @@ interface OccasionCardProps {
   name: string;
   image: string;
   href: string;
+  priority?: boolean; // Swiggy Dec 2025 pattern: Priority for first visible image (LCP optimization)
 }
 
 // Swiggy Dec 2025 pattern: Memoize expensive components to prevent unnecessary re-renders
-export const OccasionCard = React.memo(function OccasionCard({ name, image, href }: OccasionCardProps) {
+export const OccasionCard = React.memo(function OccasionCard({ name, image, href, priority = false }: OccasionCardProps) {
   return (
     <Link
       href={href}
@@ -35,7 +36,7 @@ export const OccasionCard = React.memo(function OccasionCard({ name, image, href
           fill
           className="object-cover"
           sizes="(max-width: 768px) 64px, 80px"
-          priority
+          priority={priority}
         />
       </div>
       

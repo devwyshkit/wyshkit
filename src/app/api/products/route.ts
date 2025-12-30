@@ -3,6 +3,8 @@ import { productQuerySchema } from "@/lib/validations/products";
 import { logger } from "@/lib/utils/logger";
 import { normalizeQueryParam } from "@/lib/utils/api-helpers";
 import { createSupabaseServerClientWithRequest } from "@/lib/supabase/client";
+import { getStandardProductFields } from "@/lib/utils/product-query-fields";
+import { classifySupabaseError } from "@/lib/utils/error-classification";
 
 export async function GET(request: Request) {
   logger.debug("[API /products] Request received");
@@ -43,7 +45,8 @@ export async function GET(request: Request) {
 
     // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
     // RLS policy is source of truth - it already filters by is_active and vendor status
-    let query = supabase.from("products").select("id, vendor_id, name, description, price, image, images, category, is_personalizable, variants, add_ons, specs, materials, care_instructions");
+    // Use standard product fields for consistency across all queries
+    let query = supabase.from("products").select(getStandardProductFields());
 
     if (category) {
       query = query.eq("category", category);
@@ -70,18 +73,23 @@ export async function GET(request: Request) {
     const { data: dbProducts, error } = await query;
 
     if (error) {
+      const classifiedError = classifySupabaseError(error, { vendorId });
       // Swiggy Dec 2025 pattern: Detailed error logging for debugging RLS issues
       logger.error("[API /products] Supabase query failed", {
         error: error.message,
         code: error.code,
         details: error.details,
         hint: error.hint,
-        isRLSError: error.code === '42501' || error.message?.includes('permission denied'),
         query: { category, vendorId, search, sortBy, sortOrder },
+        classifiedError,
       });
       return NextResponse.json(
-        { error: "Unable to load products", code: "PRODUCTS_FETCH_FAILED", products: [] },
-        { status: 500 }
+        { 
+          error: classifiedError.message, 
+          code: classifiedError.code, 
+          products: [] 
+        },
+        { status: classifiedError.status }
       );
     }
 
@@ -105,27 +113,36 @@ export async function GET(request: Request) {
       specs: Array.isArray(p.specs) ? p.specs : [],
       materials: Array.isArray(p.materials) ? p.materials : [],
       careInstructions: p.care_instructions || "",
+      hsnCode: p.hsn_code,
+      materialComposition: p.material_composition,
+      dimensions: p.dimensions,
+      weightGrams: p.weight_grams,
+      warranty: p.warranty,
+      countryOfOrigin: p.country_of_origin,
+      manufacturerName: p.manufacturer_name,
+      manufacturerAddress: p.manufacturer_address,
+      mockupSlaHours: p.mockup_sla_hours,
+      customizationSchema: p.customization_schema,
       averageRating: 0,
     }));
 
     logger.info("[API /products] Returning", formattedProducts.length, "products");
     return NextResponse.json({ products: formattedProducts });
   } catch (error) {
-    logger.error("[API /products] Error", {
+    const classifiedError = classifySupabaseError(error);
+    logger.error("[API /products] Unexpected error", {
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,
+      classifiedError,
     });
     
     return NextResponse.json(
       { 
-        error: "Unable to load products. Please try again.", 
-        code: "PRODUCTS_FETCH_FAILED", 
-        products: [],
-        ...(process.env.NODE_ENV === "development" && { 
-          details: error instanceof Error ? error.message : String(error) 
-        }),
+        error: classifiedError.message, 
+        code: classifiedError.code, 
+        products: [] 
       },
-      { status: 500 }
+      { status: classifiedError.status }
     );
   }
 }

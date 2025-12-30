@@ -6,6 +6,8 @@ import type { Vendor } from "@/types/vendor";
 import type { Product } from "@/types/product";
 import { logger } from "@/lib/utils/logger";
 import { deduplicateRequest } from "@/lib/utils/request-dedup";
+import { getStandardProductFields } from "@/lib/utils/product-query-fields";
+import { classifySupabaseError } from "@/lib/utils/error-classification";
 
 interface UseVendorResult {
   vendor: Vendor | null;
@@ -64,21 +66,24 @@ export function useVendor(id: string | null): UseVendorResult {
           .single(),
         supabase
           .from('products')
-          .select('id, vendor_id, name, description, price, image, images, category, is_personalizable, variants, add_ons, specs, materials, care_instructions, mockup_sla_hours, hsn_code, material_composition, dimensions, weight_grams, warranty, country_of_origin, manufacturer_name, manufacturer_address')
+          .select(getStandardProductFields())
           .eq('vendor_id', id)
           // Swiggy Dec 2025 pattern: RLS policy is source of truth - it already filters by is_active and vendor status
       ]);
 
       if (vendorResult.error || !vendorResult.data) {
+        const classifiedError = classifySupabaseError(vendorResult.error, { vendorId: id });
         logger.warn("[useVendor] Vendor not found or not approved", { 
           vendorId: id, 
           error: vendorResult.error,
           errorCode: vendorResult.error?.code,
-          errorMessage: vendorResult.error?.message
+          errorMessage: vendorResult.error?.message,
+          classifiedError,
         });
-        setError(vendorResult.error?.code === 'PGRST116' ? "Partner not found" : "Partner not available");
+        setError(classifiedError.message);
         setVendor(null);
         setProducts([]);
+        setLoading(false);
         return;
       }
 
@@ -87,26 +92,23 @@ export function useVendor(id: string | null): UseVendorResult {
 
       // Swiggy Dec 2025 pattern: Don't silently fail - set error state and exit early
       if (productsResult.error) {
+        const classifiedError = classifySupabaseError(productsResult.error, { vendorId: id });
         logger.error("[useVendor] Failed to fetch products", { 
           vendorId: id, 
           error: productsResult.error,
           errorCode: productsResult.error?.code,
           errorMessage: productsResult.error?.message,
-          errorDetails: productsResult.error?.details
+          errorDetails: productsResult.error?.details,
+          classifiedError,
         });
         
-        // Check if it's an RLS/permission error
-        const isPermissionError = productsResult.error?.code === '42501' || 
-                                  productsResult.error?.code === 'PGRST301' ||
-                                  productsResult.error?.message?.toLowerCase().includes('permission') ||
-                                  productsResult.error?.message?.toLowerCase().includes('policy') ||
-                                  productsResult.error?.message?.toLowerCase().includes('row-level security');
-        
-        // Set error state so UI can show error message
-        if (isPermissionError) {
-          setError("Unable to load products. Please check database permissions.");
+        // Set user-friendly error message based on error classification
+        if (classifiedError.isRLSError) {
+          setError("Products are not available. The vendor may not be approved or products may be inactive.");
+        } else if (classifiedError.isServiceUnavailable) {
+          setError("Service temporarily unavailable. Please try again later.");
         } else {
-          setError(`Failed to load products: ${productsResult.error?.message || 'Unknown error'}`);
+          setError(classifiedError.message);
         }
         setProducts([]);
         setLoading(false);
@@ -164,7 +166,7 @@ export function useVendor(id: string | null): UseVendorResult {
 
       // Format products data (snake_case to camelCase) with validation
       // Swiggy Dec 2025 pattern: Validate all products, log invalid ones, never silently fail
-      const formattedProducts: Product[] = (productsResult.data || [])
+      const formattedProducts: Product[] = (Array.isArray(productsResult.data) ? productsResult.data : [])
         .map((p: any) => {
           // Validate required fields - be more lenient with price
           // Swiggy Dec 2025 pattern: Robust price validation that handles string prices and edge cases
@@ -234,7 +236,7 @@ export function useVendor(id: string | null): UseVendorResult {
             countryOfOrigin: p.country_of_origin || undefined,
             manufacturerName: p.manufacturer_name || undefined,
             manufacturerAddress: p.manufacturer_address || undefined,
-          };
+          } as Product;
         })
         .filter((p): p is Product => p !== null); // Remove nulls
 
@@ -245,10 +247,15 @@ export function useVendor(id: string | null): UseVendorResult {
 
       setVendor(formattedVendor);
       setProducts(formattedProducts);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Failed to fetch vendor";
-        logger.error("[useVendor] Error", err);
-        setError(errorMessage);
+    } catch (err) {
+        const classifiedError = classifySupabaseError(err, { vendorId: id });
+        logger.error("[useVendor] Unexpected error", {
+          error: err instanceof Error ? err.message : String(err),
+          stack: err instanceof Error ? err.stack : undefined,
+          vendorId: id,
+          classifiedError,
+        });
+        setError(classifiedError.message);
         setVendor(null);
         setProducts([]);
       } finally {

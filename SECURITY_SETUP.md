@@ -51,10 +51,11 @@ WyshKit uses Supabase Row Level Security (RLS) to ensure data isolation and prev
 
 ### Products Table
 
-- **Public View**: Anyone can view active products (`is_active = true`)
+- **Public View**: Anyone can view active products (`is_active = true`) from approved vendors (`vendors.status = 'approved'`)
 - **Vendor View**: Vendors can view all their products (including inactive)
 - **Vendor Management**: Vendors can insert, update, and delete their own products
 - **Admin View**: Admins can view all products
+- **Note**: Products require both `is_active = true` AND vendor `status = 'approved'` to be visible to public
 
 ### Orders Table
 
@@ -211,9 +212,17 @@ This endpoint returns:
 
 ## Migration History
 
-- **Migration 1**: `enable_rls_on_all_tables` - Enabled RLS on all public tables
-- **Migration 2**: `create_rls_policies` - Created comprehensive RLS policies
-- **Migration 3**: `add_foreign_key_indexes` - Added performance indexes
+- **Migration 0014**: `optimize_all_rls_policies` - Optimized RLS policies with init plan optimization
+- **Migration 0018**: `add_public_products_rls_policy` - Added public access policy for products
+- **Migration 0023**: `fix_users_rls_infinite_recursion` - Fixed infinite recursion in admin policies using `is_admin()` function
+- **Migration 0024**: `fix_all_admin_rls_policies` - Fixed all admin policies to use `is_admin()` function
+- **Migration 0025**: `fix_vendors_public_rls_policy` - Simplified vendors public policy
+- **Migration 0028**: `consolidate_rls_select_policies` - Consolidated SELECT policies (DEPRECATED - replaced by 0029/0030/0032)
+- **Migration 0029**: `fix_products_rls_policy` - Fixed products RLS with separate clear policies for better performance
+- **Migration 0030**: `fix_vendors_rls_policy` - Fixed vendors RLS with separate clear policies
+- **Migration 0031**: `verify_data_status` - Data verification queries (manual run)
+- **Migration 0032**: `final_rls_cleanup` - Final cleanup to ensure all consolidated policies are removed and NULL handling is correct
+- **Migration 0033**: `complete_rls_fix_and_data_verification` - Complete RLS fix ensuring all consolidated policies are removed and data is verified
 
 ## Additional Resources
 

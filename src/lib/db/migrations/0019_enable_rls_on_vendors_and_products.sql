@@ -9,3 +9,4 @@ ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 -- After running this migration, verify with:
 -- SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public' AND tablename IN ('vendors', 'products');
 
+

@@ -105,3 +105,4 @@ WITH CHECK (is_admin((SELECT auth.uid())));
 -- SELECT proname, prosecdef FROM pg_proc WHERE proname = 'is_admin';
 -- Should return prosecdef = true
 
+

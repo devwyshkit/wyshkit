@@ -43,6 +43,8 @@ export function generateCacheKey(prefix: string, params: Record<string, unknown>
  * Otherwise, executes the function and tracks it
  * 
  * Swiggy Dec 2025 pattern: Client-side only, simple Map-based tracking
+ * CRITICAL: State updates inside fn() will execute for the FIRST call only
+ * If request is deduplicated, the existing promise is returned but fn() doesn't execute again
  */
 export async function deduplicateRequest<T>(
   key: string,
@@ -57,6 +59,7 @@ export async function deduplicateRequest<T>(
   const existingRequest = inFlightRequests.get(key);
   if (existingRequest) {
     // Return existing promise (will resolve/reject when original request completes)
+    // NOTE: fn() will NOT execute again - state updates from first call will apply
     return existingRequest as Promise<T>;
   }
 

@@ -27,3 +27,4 @@
 -- FROM pg_stat_user_indexes 
 -- WHERE schemaname = 'public' AND idx_scan = 0;
 
+

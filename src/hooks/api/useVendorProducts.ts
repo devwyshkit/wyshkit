@@ -72,9 +72,10 @@ export function useVendorProducts(): UseVendorProductsResult {
 
         // Swiggy Dec 2025 pattern: Direct Supabase query with explicit vendor_id filtering
         // Filter by vendor_id explicitly to ensure correct results
+        // Note: products table doesn't have updated_at column, only created_at
         const { data, error: queryError } = await supabase
           .from('products')
-          .select('id, vendor_id, name, description, price, image, images, category, is_personalizable, variants, add_ons, specs, materials, care_instructions, is_active, created_at, updated_at')
+          .select('id, vendor_id, name, description, price, image, images, category, is_personalizable, variants, add_ons, specs, materials, care_instructions, is_active, created_at')
           .eq('vendor_id', vendorId)
           .order('created_at', { ascending: false });
 

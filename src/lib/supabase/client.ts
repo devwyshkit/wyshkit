@@ -27,13 +27,22 @@ function getSupabaseConfig() {
   return { url, anonKey };
 }
 
+// Swiggy Dec 2025 pattern: Singleton client instance for browser (reuse same client)
+let browserClient: SupabaseClient | null = null;
+
 /**
  * Get client-side Supabase client (for browser)
  * Swiggy Dec 2025 pattern: Using createBrowserClient from @supabase/ssr
+ * Returns singleton instance to avoid recreating client on every call
  */
 export function getSupabaseClient(): SupabaseClient | null {
   if (typeof window === "undefined") {
     return null;
+  }
+
+  // Return cached client if available
+  if (browserClient) {
+    return browserClient;
   }
 
   const config = getSupabaseConfig();
@@ -89,6 +98,7 @@ export function getSupabaseClient(): SupabaseClient | null {
     });
 
     logger.debug("[Supabase] Browser client initialized");
+    browserClient = client; // Cache the client
     return client;
   } catch (error) {
     logger.error("[Supabase] Failed to initialize browser client", error);
@@ -203,7 +213,7 @@ export function createSupabaseMiddlewareClient(
                   // Silently fail individual cookie setting
                   if (process.env.NODE_ENV === 'development') {
                     // eslint-disable-next-line no-console
-                    console.debug('[Supabase] Failed to set cookie:', name, cookieError);
+                    logger.debug('[Supabase] Failed to set cookie', { name, error: cookieError });
                   }
                 }
               }
@@ -212,7 +222,7 @@ export function createSupabaseMiddlewareClient(
             // Silently fail cookie setting
             if (process.env.NODE_ENV === 'development') {
               // eslint-disable-next-line no-console
-              console.debug('[Supabase] Failed to set cookies:', error);
+              logger.debug('[Supabase] Failed to set cookies', { error });
             }
           }
         },
@@ -224,7 +234,7 @@ export function createSupabaseMiddlewareClient(
     // Edge Runtime safe - use console instead of logger
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
-      console.error("[Supabase] Failed to create middleware client:", error);
+      logger.error("[Supabase] Failed to create middleware client", { error });
     }
     return null;
   }
@@ -251,24 +261,53 @@ export async function createSupabaseServerClientWithRequest(
   try {
     // Dynamic import to avoid bundling next/headers in client code
     const { cookies } = await import("next/headers");
-    const cookieStore = await cookies();
+    
+    let cookieStore;
+    try {
+      cookieStore = await cookies();
+    } catch (cookieError) {
+      // Handle edge cases where cookies() fails (edge runtime, SSR issues)
+      logger.error("[Supabase] Failed to get cookie store", {
+        error: cookieError instanceof Error ? cookieError.message : String(cookieError),
+        stack: cookieError instanceof Error ? cookieError.stack : undefined,
+        url: request.url,
+      });
+      return null;
+    }
     
     const client = createServerClient(config.url, config.anonKey, {
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          try {
+            return cookieStore.getAll();
+          } catch (error) {
+            logger.warn("[Supabase] Cookie getAll failed", {
+              error: error instanceof Error ? error.message : String(error),
+            });
+            return [];
+          }
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch (error) {
+            logger.warn("[Supabase] Cookie setAll failed", {
+              error: error instanceof Error ? error.message : String(error),
+            });
+          }
         },
       },
     });
 
     return client;
   } catch (error) {
-    logger.error("[Supabase] Failed to create request-specific client", error);
+    logger.error("[Supabase] Failed to create request-specific client", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      url: request.url,
+    });
     return null;
   }
 }

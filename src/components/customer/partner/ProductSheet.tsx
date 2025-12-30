@@ -37,6 +37,15 @@ import {
 
 // Swiggy Dec 2025 pattern: Memoize expensive components to prevent unnecessary re-renders
 export const ProductSheet = React.memo(function ProductSheet({ product, vendor, open, onOpenChange }: { product: Product; vendor?: Vendor; open: boolean; onOpenChange: (open: boolean) => void }) {
+  // Swiggy Dec 2025 pattern: Log when ProductSheet receives open prop changes
+  useEffect(() => {
+    if (open) {
+      logger.debug("[ProductSheet] Sheet opened", { productId: product.id, productName: product.name });
+    } else {
+      logger.debug("[ProductSheet] Sheet closed", { productId: product.id });
+    }
+  }, [open, product.id, product.name]);
+  
   const { addItem, pendingVendorSwitch, confirmVendorSwitch, cancelVendorSwitch } = useCart();
   const { user } = useAuth();
   const router = useRouter();
@@ -150,43 +159,43 @@ export const ProductSheet = React.memo(function ProductSheet({ product, vendor, 
     if (justOpened || productChanged) {
       previousOpenRef.current = open;
       fetchedProductIdRef.current = product.id;
-      
-      const fetchReviews = async () => {
-        setReviewsLoading(true);
-        try {
-          const data = await apiClient.get<{
-            reviews: ProductReview[];
-            averageRating: number;
-            reviewCount: number;
-          }>(`/products/${product.id}/reviews`);
 
-          setReviews(data.reviews);
-          setAverageRating(data.averageRating);
-          setReviewCount(data.reviewCount);
+    const fetchReviews = async () => {
+      setReviewsLoading(true);
+      try {
+        const data = await apiClient.get<{
+          reviews: ProductReview[];
+          averageRating: number;
+          reviewCount: number;
+        }>(`/products/${product.id}/reviews`);
 
-          // Check if user can review (has delivered order for this product)
-          if (user) {
-            try {
-              const canReviewData = await apiClient.get<{ canReview: boolean }>(
-                `/products/${product.id}/can-review`
-              );
-              setCanReview(canReviewData.canReview);
-            } catch (error) {
-              // If check fails, default to false
-              logger.error("[ProductSheet] Failed to check review eligibility", error);
-              setCanReview(false);
-            }
-          } else {
+        setReviews(data.reviews);
+        setAverageRating(data.averageRating);
+        setReviewCount(data.reviewCount);
+
+        // Check if user can review (has delivered order for this product)
+        if (user) {
+          try {
+            const canReviewData = await apiClient.get<{ canReview: boolean }>(
+              `/products/${product.id}/can-review`
+            );
+            setCanReview(canReviewData.canReview);
+          } catch (error) {
+            // If check fails, default to false
+            logger.error("[ProductSheet] Failed to check review eligibility", error);
             setCanReview(false);
           }
-        } catch (error) {
-          logger.error("[ProductSheet] Failed to fetch reviews", error);
-        } finally {
-          setReviewsLoading(false);
+        } else {
+          setCanReview(false);
         }
-      };
+      } catch (error) {
+        logger.error("[ProductSheet] Failed to fetch reviews", error);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
 
-      fetchReviews();
+    fetchReviews();
     } else {
       previousOpenRef.current = open;
     }
@@ -234,12 +243,12 @@ export const ProductSheet = React.memo(function ProductSheet({ product, vendor, 
                   {images.map((img, index) => (
                     <CarouselItem key={index} className="h-full pl-0">
                       <div className="relative w-full h-full">
-                        <Image
+              <Image 
                           src={img}
                           alt={`${product.name} - Image ${index + 1}`}
-                          fill
+                fill 
                           sizes="100vw"
-                          className="object-cover"
+                className="object-cover" 
                           priority={index === 0}
                         />
                       </div>
@@ -400,26 +409,26 @@ export const ProductSheet = React.memo(function ProductSheet({ product, vendor, 
                       }
                       
                       return (
-                        <button 
-                          key={addon.id} 
-                          onClick={() => toggleAddOn(addon.id)}
-                          className={cn(
+                      <button 
+                        key={addon.id} 
+                        onClick={() => toggleAddOn(addon.id)}
+                        className={cn(
                             "flex flex-col items-start w-full px-3 py-2 rounded border text-left",
-                            selectedAddOns.includes(addon.id) ? "border-foreground" : "border-border"
-                          )}
-                        >
+                          selectedAddOns.includes(addon.id) ? "border-foreground" : "border-border"
+                        )}
+                      >
                           <div className="flex items-center justify-between w-full">
-                            <div>
-                              <span className="text-sm">{addon.name}</span>
-                              <span className="text-xs text-muted-foreground ml-2">+₹{addon.price}</span>
-                            </div>
-                            <div className={cn(
+                        <div>
+                          <span className="text-sm">{addon.name}</span>
+                          <span className="text-xs text-muted-foreground ml-2">+₹{addon.price}</span>
+                        </div>
+                        <div className={cn(
                               "w-4 h-4 rounded border flex items-center justify-center shrink-0",
-                              selectedAddOns.includes(addon.id) ? "bg-foreground border-foreground" : "border-muted-foreground/30"
-                            )}>
-                              {selectedAddOns.includes(addon.id) && <Check className="w-2.5 h-2.5 text-background" strokeWidth={3} />}
-                            </div>
-                          </div>
+                          selectedAddOns.includes(addon.id) ? "bg-foreground border-foreground" : "border-muted-foreground/30"
+                        )}>
+                          {selectedAddOns.includes(addon.id) && <Check className="w-2.5 h-2.5 text-background" strokeWidth={3} />}
+                        </div>
+                  </div>
                           {disclosureText && (
                             <p className="text-xs text-muted-foreground mt-1">{disclosureText}</p>
                           )}
@@ -520,7 +529,7 @@ export const ProductSheet = React.memo(function ProductSheet({ product, vendor, 
                         <span className="font-medium">{product.manufacturerAddress}</span>
                       </div>
                     )}
-                      </div>
+                  </div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -548,11 +557,11 @@ export const ProductSheet = React.memo(function ProductSheet({ product, vendor, 
               </button>
             </div>
             <div className="flex gap-2">
-              <Button 
+            <Button 
                 variant="outline"
                 className="flex-1 h-11 rounded-lg font-medium text-sm"
-                onClick={handleAdd}
-              >
+              onClick={handleAdd}
+            >
                 Add to Cart
               </Button>
               <Button 
@@ -560,7 +569,7 @@ export const ProductSheet = React.memo(function ProductSheet({ product, vendor, 
                 onClick={handleBuyNow}
               >
                 Buy Now - ₹{total.toLocaleString("en-IN")}
-              </Button>
+            </Button>
             </div>
           </div>
         </Drawer.Content>

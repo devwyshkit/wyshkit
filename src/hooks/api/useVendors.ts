@@ -113,6 +113,7 @@ export function useVendors(query?: Partial<VendorQueryInput>): UseVendorsResult 
           });
           setError(queryError.message || "Failed to fetch vendors");
           setVendors([]);
+          setLoading(false); // CRITICAL FIX: Always set loading to false on error
           return;
         }
 

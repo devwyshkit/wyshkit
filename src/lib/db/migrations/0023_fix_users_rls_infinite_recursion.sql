@@ -96,3 +96,4 @@ ON users FOR SELECT
 TO public
 USING (is_admin((SELECT auth.uid())));
 
+

@@ -26,12 +26,38 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
     const inIframe = window.parent !== window;
     if (!inIframe) return;
 
+    /**
+     * Check if error is a browser extension error
+     */
+    const isBrowserExtensionError = (error: unknown): boolean => {
+      if (error instanceof Error) {
+        const message = error.message.toLowerCase();
+        return (
+          message.includes("runtime.lasterror") ||
+          message.includes("message port closed") ||
+          message.includes("extension context invalidated")
+        );
+      }
+      return false;
+    };
+
     const send = (payload: unknown) => {
+      // Swiggy Dec 2025 pattern: Check for browser extension context before postMessage
+      // Some browser extensions may interfere with postMessage
       try {
-        window.parent.postMessage(payload, "*");
+        // Check if parent window is available and not same-origin blocked
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(payload, "*");
+        }
       } catch (error) {
-        // Swiggy Dec 2025 pattern: Log errors properly, don't suppress
-        if (process.env.NODE_ENV === "development") {
+        // Swiggy Dec 2025 pattern: Suppress browser extension errors, log others
+        if (isBrowserExtensionError(error)) {
+          // Browser extension errors are harmless - suppress in production
+          if (process.env.NODE_ENV === "development") {
+            logger.debug("[ErrorReporter] Browser extension postMessage error (suppressed)", error);
+          }
+        } else {
+          // Log legitimate errors
           logger.debug("[ErrorReporter] postMessage failed", error);
         }
       }
@@ -99,25 +125,49 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
     const inIframe = window.parent !== window;
     if (!inIframe) return;
     
+    /**
+     * Check if error is a browser extension error
+     */
+    const isBrowserExtensionError = (err: unknown): boolean => {
+      if (err instanceof Error) {
+        const message = err.message.toLowerCase();
+        return (
+          message.includes("runtime.lasterror") ||
+          message.includes("message port closed") ||
+          message.includes("extension context invalidated")
+        );
+      }
+      return false;
+    };
+
     try {
-      window.parent.postMessage(
-        {
-          type: "global-error-reset",
-          error: {
-            message: error.message,
-            stack: error.stack,
-            digest: error.digest,
-            name: error.name,
+      // Check if parent window is available before posting message
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage(
+          {
+            type: "global-error-reset",
+            error: {
+              message: error.message,
+              stack: error.stack,
+              digest: error.digest,
+              name: error.name,
+            },
+            timestamp: Date.now(),
+            userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
           },
-          timestamp: Date.now(),
-          userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
-        },
-        "*"
-      );
-    } catch (error) {
-      // Swiggy Dec 2025 pattern: Log errors properly, don't suppress
-      if (process.env.NODE_ENV === "development") {
-        logger.debug("[ErrorReporter] postMessage failed", error);
+          "*"
+        );
+      }
+    } catch (postError) {
+      // Swiggy Dec 2025 pattern: Suppress browser extension errors, log others
+      if (isBrowserExtensionError(postError)) {
+        // Browser extension errors are harmless - suppress in production
+        if (process.env.NODE_ENV === "development") {
+          logger.debug("[ErrorReporter] Browser extension postMessage error (suppressed)", postError);
+        }
+      } else {
+        // Log legitimate errors
+        logger.debug("[ErrorReporter] postMessage failed", postError);
       }
     }
   }, [error]);

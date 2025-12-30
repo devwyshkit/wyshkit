@@ -11,6 +11,22 @@ const FOCUSED_ELEMENT_KEY = "wyshkit_focused_element" as const;
 // Deduplicate helper for high-frequency traffic (HIT / FOCUS_MOVED / SCROLL)
 // -----------------------------------------------------------------------------
 let _wyshkitLastMsg = "";
+
+/**
+ * Check if error is a browser extension error
+ */
+const isBrowserExtensionError = (error: unknown): boolean => {
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase();
+    return (
+      message.includes("runtime.lasterror") ||
+      message.includes("message port closed") ||
+      message.includes("extension context invalidated")
+    );
+  }
+  return false;
+};
+
 const postMessageDedup = (data: any) => {
   // Check if we're in an iframe and parent is available
   if (typeof window === "undefined") return;
@@ -25,12 +41,22 @@ const postMessageDedup = (data: any) => {
   }
   
   try {
-    window.parent.postMessage(data, "*");
+    // Swiggy Dec 2025 pattern: Check for browser extension context before postMessage
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage(data, "*");
+    }
   } catch (error) {
-    // Swiggy Dec 2025 pattern: Log errors properly, don't suppress
-    // Chrome extension errors are harmless and don't need special handling
-    if (process.env.NODE_ENV === "development") {
-      logger.debug("[VisualEdits] postMessage failed", error);
+    // Swiggy Dec 2025 pattern: Suppress browser extension errors, log others
+    if (isBrowserExtensionError(error)) {
+      // Browser extension errors are harmless - suppress in production
+      if (process.env.NODE_ENV === "development") {
+        logger.debug("[VisualEdits] Browser extension postMessage error (suppressed)", error);
+      }
+    } else {
+      // Log legitimate errors
+      if (process.env.NODE_ENV === "development") {
+        logger.debug("[VisualEdits] postMessage failed", error);
+      }
     }
   }
 };

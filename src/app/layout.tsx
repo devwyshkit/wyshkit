@@ -7,6 +7,7 @@ import { LocationProvider } from "@/contexts/LocationContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 import { DeepLinkHandler } from "@/components/deep-linking/DeepLinkHandler";
+import { BrowserExtensionErrorHandler } from "@/components/errors/BrowserExtensionErrorHandler";
 // Temporarily removed InitialLoader to test server startup
 // import { InitialLoader } from "@/components/providers/InitialLoader";
 
@@ -51,6 +52,7 @@ export default function RootLayout({
              communicate with the page but the message port closes. This is not a bug in our code. */}
       </head>
       <body className="antialiased font-sans">
+        <BrowserExtensionErrorHandler />
         <ErrorReporter />
         <ErrorBoundary fallback={<div className="min-h-screen bg-background flex items-center justify-center p-4"><div className="text-center"><h1 className="text-xl font-semibold mb-2">Something went wrong</h1><p className="text-muted-foreground">Please refresh the page</p></div></div>}>
           <ErrorBoundary fallback={<div className="min-h-screen bg-background flex items-center justify-center p-4"><div className="text-center"><h2 className="text-lg font-semibold mb-2">App services unavailable</h2><p className="text-muted-foreground text-sm">Please refresh the page</p></div></div>}>

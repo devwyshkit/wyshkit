@@ -9,12 +9,18 @@ import { HeroBanner } from "@/components/customer/home/HeroBanner";
 import { CategoryChip } from "@/components/customer/home/CategoryChip";
 import { Button } from "@/components/ui/button";
 import { useVendors } from "@/hooks/api/useVendors";
+import { useTrendingProducts } from "@/hooks/api/useTrendingProducts";
+import { ProductCard } from "@/components/customer/product/ProductCard";
+import { useRouter } from "next/navigation";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
-export default function Home() {
+function HomeContent() {
   const [activeCategory, setActiveCategory] = useState("All");
+  const router = useRouter();
   
   // Swiggy Dec 2025 pattern: Use direct Supabase hook instead of API route
   const { vendors, loading, error, refetch } = useVendors();
+  const { products: trendingProducts, loading: trendingLoading, error: trendingError } = useTrendingProducts(20);
 
   // Swiggy Dec 2025 pattern: Memoize static data to prevent recreation on every render
   const categories = useMemo(() => ["All", "Ceramics", "Jewelry", "Tech", "Cakes", "Home Decor"], []);
@@ -45,20 +51,43 @@ export default function Home() {
     },
   ], []);
 
-  // Swiggy Dec 2025 pattern: Fix broken category filtering - filter vendors by category
+  // Swiggy Dec 2025 pattern: Only show vendors that have products (Swiggy pattern - no empty stores)
+  // Filter vendors by category and ensure they have products
+  // CRITICAL FIX: Only show vendors with products - don't show empty stores even during loading
   const filteredVendors = useMemo(() => {
-    if (activeCategory === "All") {
-      return vendors;
+    // If products are still loading, return empty array (will show skeletons)
+    // This prevents showing vendors without products
+    if (trendingLoading) {
+      return [];
     }
-    // Filter vendors by category - check description and tags
+    
+    // If no products loaded, don't show any vendors
+    if (!trendingProducts || trendingProducts.length === 0) {
+      return [];
+    }
+    
+    // Once products are loaded, filter vendors that have products
+    const vendorsWithProducts = new Set(trendingProducts.map(p => p.vendorId));
+    
+    // Filter vendors: must have products AND match category (if not "All")
     return vendors.filter(vendor => {
+      // Swiggy Dec 2025 pattern: Only show vendors with products
+      if (!vendorsWithProducts.has(vendor.id)) {
+        return false;
+      }
+      
+      // Category filter
+      if (activeCategory === "All") {
+        return true;
+      }
+      
       const categoryLower = activeCategory.toLowerCase();
       return (
         vendor.description?.toLowerCase().includes(categoryLower) ||
         (Array.isArray(vendor.tags) && vendor.tags.some(tag => tag.toLowerCase().includes(categoryLower)))
       );
     });
-  }, [vendors, activeCategory]);
+  }, [vendors, activeCategory, trendingProducts, trendingLoading]);
 
   return (
     <div className="flex flex-col min-h-screen pb-20">
@@ -83,10 +112,68 @@ export default function Home() {
           </Link>
         </div>
         <div className="flex gap-4 overflow-x-auto px-4 pb-2 no-scrollbar snap-x snap-mandatory">
-          {occasions.map((occ) => (
-            <OccasionCard key={occ.name} {...occ} />
+          {occasions.map((occ, index) => (
+            <OccasionCard key={occ.name} {...occ} priority={index === 0} />
           ))}
         </div>
+      </section>
+
+      {/* Trending Gifts Section */}
+      {/* Swiggy Dec 2025 pattern: Always show section, show empty state if no products */}
+      <section className="mt-6">
+        <div className="px-4 flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold text-foreground">Trending Gifts</h2>
+          <Link href="/search" className="text-sm text-primary font-medium flex items-center">
+            See all <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+        {trendingLoading ? (
+          <div className="flex gap-4 overflow-x-auto px-4 pb-2">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex-shrink-0 w-[280px] h-32 bg-muted rounded-xl animate-pulse" />
+            ))}
+          </div>
+        ) : trendingError ? (
+          <div className="px-4 py-8 text-center">
+            <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
+            <p className="text-destructive text-sm mb-2 font-medium">Failed to load products</p>
+            <p className="text-muted-foreground text-xs mb-4">{trendingError}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                // Refetch products - SSR safe: only called on client
+                if (typeof window !== "undefined") {
+                  window.location.reload();
+                }
+              }}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Retry
+            </Button>
+          </div>
+        ) : trendingProducts && trendingProducts.length > 0 ? (
+          // CRITICAL FIX: Removed redundant !trendingLoading check - if we're here, loading is false
+          <div className="flex gap-4 overflow-x-auto px-4 pb-2 no-scrollbar snap-x snap-mandatory">
+            {trendingProducts.slice(0, 10).map((product) => (
+              <div key={product.id} className="flex-shrink-0 w-[280px] snap-start">
+                <ProductCard
+                  id={product.id}
+                  name={product.name}
+                  price={product.price}
+                  image={product.image}
+                  category={product.category}
+                  isPersonalizable={product.isPersonalizable}
+                  onClick={() => router.push(`/partner/${product.vendorId}?product=${product.id}`)}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="px-4 py-8 text-center text-muted-foreground">
+            <p>No trending products available at the moment.</p>
+          </div>
+        )}
       </section>
 
       <section className="mt-6 px-4">
@@ -173,5 +260,29 @@ export default function Home() {
         </Link>
       </section>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <ErrorBoundary fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+          <h1 className="text-xl font-semibold mb-2">Unable to load homepage</h1>
+          <p className="text-muted-foreground text-sm mb-4">Please refresh the page</p>
+          <Button onClick={() => {
+            if (typeof window !== "undefined") {
+              window.location.reload();
+            }
+          }} variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
+      </div>
+    }>
+      <HomeContent />
+    </ErrorBoundary>
   );
 }

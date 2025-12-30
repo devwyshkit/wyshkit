@@ -41,6 +41,8 @@ export const HeroBanner = React.memo(function HeroBanner({ slides, autoRotateInt
   if (slides.length === 0) return null;
 
   const currentSlide = slides[currentIndex];
+  // Swiggy Dec 2025 pattern: Priority for first slide only (LCP optimization)
+  const isFirstSlide = currentIndex === 0;
 
   return (
     <div className="relative h-40 md:h-48 rounded-xl overflow-hidden group">
@@ -50,7 +52,7 @@ export const HeroBanner = React.memo(function HeroBanner({ slides, autoRotateInt
         fill
         sizes="100vw"
         className="object-cover"
-        priority
+        priority={isFirstSlide}
       />
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
       

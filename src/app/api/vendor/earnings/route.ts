@@ -97,9 +97,10 @@ export async function GET(request: Request) {
     }, 0);
 
     // Count completed orders in period
+    // Swiggy Dec 2025 pattern: Select specific field instead of select('*') for count queries
     const { count: completedOrders, error: countError } = await supabase
       .from('orders')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true })
       .eq('vendor_id', vendorId)
       .eq('payment_status', 'completed')
       .gte('created_at', periodStart.toISOString());

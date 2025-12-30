@@ -37,3 +37,4 @@ CREATE INDEX IF NOT EXISTS user_search_history_user_id_created_at_idx ON public.
 
 
 
+

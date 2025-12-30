@@ -165,6 +165,8 @@ export function Navbar() {
   const isVendor = pathname.startsWith("/vendor/") || pathname.startsWith("/partner/");
   const isSearch = pathname === "/search";
   
+  // Swiggy Dec 2025 pattern: Only call useVendor hook when actually on a vendor page
+  // This prevents unnecessary hook calls and potential SSR issues
   const vendorId = isVendor ? pathname.split("/")[2] : null;
   const { vendor, loading: vendorLoading } = useVendor(vendorId);
   const vendorName = vendor?.name || null;

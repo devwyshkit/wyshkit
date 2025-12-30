@@ -4,3 +4,4 @@
 
 CREATE INDEX IF NOT EXISTS user_carts_vendor_id_idx ON user_carts(vendor_id);
 
+

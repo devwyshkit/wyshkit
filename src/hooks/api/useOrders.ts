@@ -15,7 +15,7 @@ interface Order {
     name: string;
     image?: string;
   };
-  vendorName?: string; // Legacy field, prefer vendor.name
+  vendorName?: string;
   items: Array<{
     productId: string;
     productName?: string;
@@ -106,3 +106,17 @@ export function useOrders(): UseOrdersResult {
       } finally {
         setLoading(false);
       }
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  return {
+    orders,
+    loading,
+    error,
+    refetch: fetchOrders,
+  };
+}

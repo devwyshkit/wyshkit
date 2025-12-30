@@ -19,3 +19,4 @@ ON vendors FOR SELECT
 TO public
 USING ((SELECT auth.uid()) = user_id);
 
+

@@ -5,6 +5,7 @@ import { getSupabaseClient } from "@/lib/supabase/client";
 import type { Product } from "@/types/product";
 import type { ProductQueryInput } from "@/lib/validations/products";
 import { deduplicateRequest, generateCacheKey } from "@/lib/utils/request-dedup";
+import { getStandardProductFields } from "@/lib/utils/product-query-fields";
 import { logger } from "@/lib/utils/logger";
 
 interface UseProductsResult {
@@ -56,9 +57,10 @@ export function useProducts(query?: Partial<ProductQueryInput>): UseProductsResu
 
         // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
         // RLS policy is source of truth - it already filters by is_active and vendor status
+        // Use standard product fields for consistency across all queries
         let supabaseQuery = supabase
           .from('products')
-          .select('id, vendor_id, name, description, price, image, images, category, is_personalizable, variants, add_ons, specs, materials, care_instructions, is_active, created_at, updated_at');
+          .select(getStandardProductFields());
 
         if (memoizedQuery?.category) {
           supabaseQuery = supabaseQuery.eq('category', memoizedQuery.category);
@@ -107,6 +109,7 @@ export function useProducts(query?: Partial<ProductQueryInput>): UseProductsResu
           });
           setError(queryError.message || "Failed to fetch products");
           setProducts([]);
+          setLoading(false); // CRITICAL FIX: Always set loading to false on error
           return;
         }
 
@@ -131,6 +134,16 @@ export function useProducts(query?: Partial<ProductQueryInput>): UseProductsResu
           specs: Array.isArray(p.specs) ? p.specs : [],
           materials: Array.isArray(p.materials) ? p.materials : [],
           careInstructions: p.care_instructions || "",
+          hsnCode: p.hsn_code,
+          materialComposition: p.material_composition,
+          dimensions: p.dimensions,
+          weightGrams: p.weight_grams,
+          warranty: p.warranty,
+          countryOfOrigin: p.country_of_origin,
+          manufacturerName: p.manufacturer_name,
+          manufacturerAddress: p.manufacturer_address,
+          mockupSlaHours: p.mockup_sla_hours,
+          customizationSchema: p.customization_schema,
         }));
 
         setProducts(formattedProducts);

@@ -31,11 +31,11 @@ export async function GET(request: Request) {
 
     // Fetch global config using Supabase client
     // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
+    // RLS policy is source of truth - it already filters by is_active
     const { data: globalConfigData, error: globalError } = await supabase
       .from('cashback_config')
       .select('id, type, entity_id, percentage, is_active, created_at, updated_at')
       .eq('type', 'global')
-      .eq('is_active', true)
       .maybeSingle();
 
     if (globalError && globalError.code !== 'PGRST116') {
@@ -48,12 +48,12 @@ export async function GET(request: Request) {
     let categoryOverride = null;
     if (categoryId) {
       // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
+      // RLS policy is source of truth - it already filters by is_active
       const { data: categoryData, error: categoryError } = await supabase
         .from('cashback_config')
         .select('id, type, entity_id, percentage, is_active, created_at, updated_at')
         .eq('type', 'category')
         .eq('entity_id', categoryId)
-        .eq('is_active', true)
         .maybeSingle();
 
       if (categoryError && categoryError.code !== 'PGRST116') {
@@ -67,12 +67,12 @@ export async function GET(request: Request) {
     let vendorOverride = null;
     if (vendorId) {
       // Swiggy Dec 2025 pattern: Select specific fields to reduce payload size
+      // RLS policy is source of truth - it already filters by is_active
       const { data: vendorData, error: vendorError } = await supabase
         .from('cashback_config')
         .select('id, type, entity_id, percentage, is_active, created_at, updated_at')
         .eq('type', 'vendor')
         .eq('entity_id', vendorId)
-        .eq('is_active', true)
         .maybeSingle();
 
       if (vendorError && vendorError.code !== 'PGRST116') {

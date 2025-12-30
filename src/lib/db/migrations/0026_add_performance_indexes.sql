@@ -15,3 +15,4 @@ CREATE INDEX IF NOT EXISTS orders_vendor_status_idx ON public.orders (vendor_id,
 -- Index for orders(created_at) - for time-based queries (already exists via primary key, but explicit for clarity)
 -- Note: This might already exist, but IF NOT EXISTS handles it gracefully
 
+

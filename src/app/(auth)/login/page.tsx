@@ -55,7 +55,20 @@ function LoginPageContent() {
         // Append the hash to ensure tokens are passed to callback handler
         const fullUrl = callbackUrl + window.location.hash;
         logger.debug("[Login] Redirecting to callback", { url: callbackUrl, hasHash: !!window.location.hash });
-        window.location.href = fullUrl;
+        
+        // Swiggy Dec 2025 pattern: Add error handling for OAuth redirects
+        // Browser extensions may interfere with redirects, so we handle errors gracefully
+        try {
+          window.location.href = fullUrl;
+        } catch (redirectError) {
+          // If window.location.href fails, try router.push as fallback
+          logger.warn("[Login] window.location.href failed, trying router.push", {
+            error: redirectError instanceof Error ? redirectError.message : String(redirectError),
+            url: fullUrl,
+          });
+          // Note: router.push won't preserve hash fragments, but it's better than failing
+          router.push(callbackUrl);
+        }
         return;
       }
     }

@@ -1,7 +1,7 @@
 "use client";
 
-import { use, useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { use, useState, useMemo, useEffect, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useVendor } from "@/hooks/api/useVendor";
 import { Product } from "@/types/product";
 import { Star, Clock, MapPin, Search } from "lucide-react";
@@ -15,6 +15,7 @@ import { NotFound } from "@/components/errors/NotFound";
 import { ProductFilters, type ProductFilters as ProductFiltersType } from "@/components/customer/partner/ProductFilters";
 import { EmptyProducts } from "@/components/empty/EmptyProducts";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
+import { logger } from "@/lib/utils/logger";
 
 export default function PartnerCatalog({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -35,7 +36,24 @@ export default function PartnerCatalog({ params }: { params: Promise<{ id: strin
 
   return (
     <ErrorBoundary>
-      <PartnerCatalogContent id={id} />
+      <Suspense fallback={
+        <div className="flex flex-col min-h-screen bg-background pb-32">
+          <div className="max-w-6xl mx-auto w-full">
+            <Skeleton className="h-48 md:h-56 lg:h-64 w-full rounded-none" />
+            <div className="px-4 -mt-8 relative z-10">
+              <Skeleton className="h-28 w-full rounded-xl" />
+            </div>
+            <div className="px-4 py-4">
+              <Skeleton className="h-11 w-full rounded-xl" />
+            </div>
+            <div className="px-4">
+              <ProductListSkeleton count={6} />
+            </div>
+          </div>
+        </div>
+      }>
+        <PartnerCatalogContent id={id} />
+      </Suspense>
     </ErrorBoundary>
   );
 }
@@ -43,9 +61,70 @@ export default function PartnerCatalog({ params }: { params: Promise<{ id: strin
 function PartnerCatalogContent({ id }: { id: string }) {
   const { vendor, products: vendorProducts, loading, error } = useVendor(id);
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  
+  // Swiggy Dec 2025 pattern: Track if product sheet has been opened from query param to prevent multiple opens
+  const productSheetOpenedFromQueryRef = useRef<string | null>(null);
+  
+  // Swiggy Dec 2025 pattern: Handle product deep linking from URL query param
+  useEffect(() => {
+    const productId = searchParams.get('product');
+    
+    if (productId) {
+      logger.debug("[PartnerCatalog] Product query param detected", { productId, vendorId: id });
+    }
+    
+    if (productId && vendorProducts && vendorProducts.length > 0) {
+      // Prevent opening the same product multiple times
+      if (productSheetOpenedFromQueryRef.current === productId) {
+        logger.debug("[PartnerCatalog] Product sheet already opened for this product, skipping", { productId });
+        return;
+      }
+      
+      const product = vendorProducts.find(p => p.id === productId);
+      
+      if (product) {
+        logger.info("[PartnerCatalog] Product found, opening sheet", { 
+          productId, 
+          productName: product.name,
+          vendorId: id 
+        });
+        
+        // Set state first
+        setSelectedProduct(product);
+        setIsSheetOpen(true);
+        productSheetOpenedFromQueryRef.current = productId;
+        
+        // Clean up URL (remove product query param) after a short delay to ensure state updates are processed
+        setTimeout(() => {
+          const newSearchParams = new URLSearchParams(searchParams.toString());
+          newSearchParams.delete('product');
+          const newUrl = newSearchParams.toString() 
+            ? `?${newSearchParams.toString()}`
+            : '';
+          // Swiggy Dec 2025 pattern: Fix router.replace path - use correct format
+          const targetPath = newUrl ? `/partner/${id}${newUrl}` : `/partner/${id}`;
+          logger.debug("[PartnerCatalog] Cleaning up URL query param", { targetPath });
+          router.replace(targetPath, { scroll: false });
+        }, 100);
+      } else {
+        logger.warn("[PartnerCatalog] Product not found in vendorProducts", { 
+          productId, 
+          vendorId: id,
+          availableProductIds: vendorProducts.map(p => p.id)
+        });
+      }
+    } else if (productId && (!vendorProducts || vendorProducts.length === 0)) {
+      logger.debug("[PartnerCatalog] Product query param present but vendorProducts not loaded yet", { 
+        productId, 
+        vendorId: id,
+        loading 
+      });
+    }
+  }, [searchParams, vendorProducts, router, id, loading]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<ProductFiltersType>({
     sort: "relevance",

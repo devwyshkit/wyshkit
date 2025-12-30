@@ -50,3 +50,4 @@ USING ((SELECT auth.uid()) = user_id);
 -- Note: users table policy already uses is_admin() function which is optimized
 -- Note: products and vendors policies use EXISTS subqueries which are already optimized
 
+

@@ -98,44 +98,7 @@ export function getLogoUrl(): string {
 export function getScriptUrl(scriptName: "browserLogs" | "routeMessenger"): string {
   // Swiggy Dec 2025 pattern: Disable optional scripts until storage bucket is configured
   // These Orchids monitoring scripts are non-critical and should fail gracefully
-  // Re-enable by removing this return statement once 'scripts' bucket exists in Supabase Storage
+  // Re-enable by implementing script URL generation once 'scripts' bucket exists in Supabase Storage
   return "";
-  
-  // Original implementation (commented for future use):
-  // try {
-  //   // Safely access env - handle case where env module might not be initialized
-  //   let supabaseUrl: string | undefined;
-  //   try {
-  //     supabaseUrl = env?.NEXT_PUBLIC_SUPABASE_URL;
-  //   } catch {
-  //     // If env access fails, return empty string (SSR-safe)
-  //     return "";
-  //   }
-  //   
-  //   // Return empty string if Supabase URL not configured (SSR-safe)
-  //   if (!supabaseUrl || typeof supabaseUrl !== "string" || supabaseUrl.trim() === "") {
-  //     return "";
-  //   }
-  //   
-  //   // Validate URL format before generating script URL
-  //   // This prevents DNS errors from invalid URLs
-  //   const urlMatch = supabaseUrl.match(/^https:\/\/([^.]+)\.supabase\.co\/?$/);
-  //   if (!urlMatch) {
-  //     // Invalid URL format - return empty string to prevent DNS errors
-  //     return "";
-  //   }
-  //   
-  //   const script = SUPABASE_STORAGE_PATHS.scripts[scriptName];
-  //   if (!script) {
-  //     return "";
-  //   }
-  //   
-  //   const scriptUrl = getStorageBucketUrl(SUPABASE_STORAGE_PATHS.scripts.bucket, script);
-  //   // Return empty string if URL generation failed (null)
-  //   return scriptUrl || "";
-  // } catch (error) {
-  //   // Gracefully handle any errors during SSR - never throw
-  //   return "";
-  // }
 }
 
